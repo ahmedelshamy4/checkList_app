@@ -9,7 +9,7 @@ class AppTextField extends StatelessWidget {
   final int maxLines;
   final bool obscureText;
   final TextStyle? style;
-
+final Widget? suffixIcon;
   const AppTextField({
     super.key,
     required this.controller,
@@ -18,6 +18,7 @@ class AppTextField extends StatelessWidget {
     this.maxLines = 1,
     this.obscureText = false,
     this.style,
+    this.suffixIcon,
   });
 
   @override
@@ -30,7 +31,9 @@ class AppTextField extends StatelessWidget {
       obscureText: obscureText,
       maxLength: null,
       style: style ?? AppTextStyles.nunitoFont16Bold(context),
+
       decoration: InputDecoration(
+        suffixIcon: suffixIcon,
         hintText: hintText,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
