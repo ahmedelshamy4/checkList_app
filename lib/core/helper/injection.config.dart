@@ -35,6 +35,20 @@ import 'package:checklist_app/checklist/domain/use_cases/remove_check_list_item_
 import 'package:checklist_app/checklist/presentation/manager/checklist_cubit.dart'
     as _i348;
 import 'package:checklist_app/core/helper/injection.dart' as _i333;
+import 'package:checklist_app/topic_details_page.dart/data/repositories/topic_details_repository_iimp.dart'
+    as _i1015;
+import 'package:checklist_app/topic_details_page.dart/domain/repositories/topic_details_repository.dart'
+    as _i554;
+import 'package:checklist_app/topic_details_page.dart/domain/use_cases/add_details_topic_use_case.dart'
+    as _i807;
+import 'package:checklist_app/topic_details_page.dart/domain/use_cases/delete_details_topic_use_case.dart'
+    as _i227;
+import 'package:checklist_app/topic_details_page.dart/domain/use_cases/get_all_details_topic_use_case.dart'
+    as _i1038;
+import 'package:checklist_app/topic_details_page.dart/domain/use_cases/update_details_topic_use_case.dart'
+    as _i225;
+import 'package:checklist_app/topic_details_page.dart/presentation/manager/topic_details_cubit.dart'
+    as _i712;
 import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
@@ -53,9 +67,20 @@ extension GetItInjectableX on _i174.GetIt {
     final injectableModule = _$InjectableModule();
     gh.factory<_i348.ChecklistCubit>(() => _i348.ChecklistCubit());
     gh.factory<_i235.TopicsCubit>(() => _i235.TopicsCubit());
+    gh.factory<_i712.TopicDetailsCubit>(() => _i712.TopicDetailsCubit());
     gh.lazySingleton<_i974.FirebaseFirestore>(() => injectableModule.firestore);
+    gh.factory<_i554.TopicDetailsRepository>(
+        () => _i1015.TopicDetailsRepositoryImp(gh<_i974.FirebaseFirestore>()));
     gh.factory<_i956.ChecklistRepository>(() => _i780.ChecklistRepositoryImpl(
         firestore: gh<_i974.FirebaseFirestore>()));
+    gh.factory<_i227.DeleteTopicUseCase>(
+        () => _i227.DeleteTopicUseCase(gh<_i554.TopicDetailsRepository>()));
+    gh.factory<_i225.UpdateTopicUseCase>(
+        () => _i225.UpdateTopicUseCase(gh<_i554.TopicDetailsRepository>()));
+    gh.factory<_i807.AddDetailsTopicUseCase>(
+        () => _i807.AddDetailsTopicUseCase(gh<_i554.TopicDetailsRepository>()));
+    gh.factory<_i1038.GetAllDetailsTopicUseCase>(() =>
+        _i1038.GetAllDetailsTopicUseCase(gh<_i554.TopicDetailsRepository>()));
     gh.factory<_i335.CheckListTopicRepository>(() =>
         _i642.CheckListTopicRepositoryImp(
             firestore: gh<_i974.FirebaseFirestore>()));

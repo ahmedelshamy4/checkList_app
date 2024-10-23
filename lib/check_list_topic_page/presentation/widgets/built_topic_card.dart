@@ -7,9 +7,11 @@ class BuiltTopicCard extends StatelessWidget {
       {super.key,
       required this.topic,
       required this.onDelete,
-      required this.onUpdate});
+      required this.onUpdate,
+      required this.checklistId});
 
   final CheckListTopicEntity topic;
+  final String checklistId;
   final VoidCallback onDelete;
   final VoidCallback onUpdate;
 
@@ -19,7 +21,10 @@ class BuiltTopicCard extends StatelessWidget {
       title: Text(topic.name),
       subtitle: Text(topic.description),
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => TopicDetailsPage(topic: topic),
+        builder: (context) => TopicDetailsPage(
+          topic: topic,
+          checklistId: checklistId,
+        ),
       )),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

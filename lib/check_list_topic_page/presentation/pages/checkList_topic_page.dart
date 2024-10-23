@@ -37,8 +37,7 @@ class TopicDetailsPageBody extends StatefulWidget {
   _TopicDetailsPageBodyState createState() => _TopicDetailsPageBodyState();
 }
 
-class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody>
-    with SingleTickerProviderStateMixin {
+class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody> {
   List<CheckListTopicEntity> _topics = [];
 
   void _fetchTopics() async {
@@ -161,6 +160,7 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody>
                               showUpdateTopicDialog(
                                   context, topic, widget.checklistItem.name);
                             },
+                            checklistId: widget.checklistItem.id,
                           );
                         },
                       )
