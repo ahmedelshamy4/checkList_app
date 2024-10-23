@@ -29,7 +29,7 @@ class ChecklistCubit extends Cubit<ChecklistState> {
     try {
       final result = await _getChecklistItemsUseCase.execute();
       emit(state.reduce(getChecklistItemsState: Async.success(result)));
-      print('Loaded ${result.length} items');
+      // print('Loaded ${result.length} items');
     } catch (e) {
       emit(state.reduce(
           getChecklistItemsState: Async.failure(Failure(e.toString()))));

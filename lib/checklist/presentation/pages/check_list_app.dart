@@ -1,3 +1,4 @@
+import 'package:checklist_app/check_list_topic_page/presentation/pages/checkList_topic_page.dart';
 import 'package:checklist_app/checklist/domain/entities/check_list_item.dart';
 import 'package:checklist_app/checklist/presentation/manager/checklist_cubit.dart';
 import 'package:checklist_app/checklist/presentation/manager/checklist_state.dart';
@@ -18,7 +19,7 @@ class ChecklistApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Checklist App'),
         ),
-        body: ChecklistAppBody(),
+        body: const ChecklistAppBody(),
       ),
     );
   }
@@ -77,31 +78,51 @@ class _ChecklistAppBodyState extends State<ChecklistAppBody> {
                   builder: (context, state) {
                     if (state.getChecklistItemsState.isFailure) {
                       return Center(
-                        child: Text(state
-                                .getChecklistItemsState.failure?.errorMessage ??
-                            ''),
+                        child: Text(
+                          state.getChecklistItemsState.failure?.errorMessage ??
+                              '',
+                          style: AppTextStyles.playfairFont24Bold(context),
+                        ),
                       );
                     } else if (state.getChecklistItemsState.isSuccess) {
                       final checklist = state.getChecklistItemsState.data;
                       if (checklist != null) {
-                        return ListView.builder(
-                          itemCount: checklist.length,
-                          itemBuilder: (context, index) {
-                            final checklistItem = checklist[index];
-                            return ListTile(
-                              title: Text(
-                                checklistItem.name,
-                                style:
-                                    AppTextStyles.playfairFont24Bold(context),
-                              ),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () =>
-                                    _onRemoveChecklistTopic(checklistItem.id),
-                              ),
-                            );
-                          },
-                        );
+                        return checklist.isNotEmpty
+                            ? ListView.builder(
+                                itemCount: checklist.length,
+                                itemBuilder: (context, index) {
+                                  final checklistItem = checklist[index];
+                                  return ListTile(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              CheckListTopicPage(
+                                                  checklistItem: checklistItem),
+                                        ),
+                                      );
+                                    },
+                                    title: Text(
+                                      checklistItem.name,
+                                      style: AppTextStyles.playfairFont24Bold(
+                                          context),
+                                    ),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () => _onRemoveChecklistTopic(
+                                          checklistItem.id),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Center(
+                                child: Text(
+                                  "No Checklist Items",
+                                  style:
+                                      AppTextStyles.playfairFont24Bold(context),
+                                ),
+                              );
                       }
                     }
 
@@ -118,9 +139,7 @@ class _ChecklistAppBodyState extends State<ChecklistAppBody> {
                 state.getChecklistItemsState.isLoading ||
                 state.deleteChecklistItemState.isLoading) {
               return Center(
-                child: CustomLoader(
-                  type: SpinKitType.fadingCircle,
-                ),
+                child: CustomLoader(),
               );
             }
             return const SizedBox.shrink();
