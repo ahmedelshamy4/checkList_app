@@ -59,8 +59,9 @@ class ToastService {
                 Expanded(
                   child: Text(
                     message,
-                    style: AppTextStyles.nunitoFont20Medium(context,
-                        color: AppColors.white),
+                    style: AppTextStyles.nunitoFont16Regular(
+                      context,
+                    ),
                   ),
                 ),
               ],

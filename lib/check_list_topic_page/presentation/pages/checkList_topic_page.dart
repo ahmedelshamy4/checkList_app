@@ -2,8 +2,10 @@ import 'package:checklist_app/check_list_topic_page/domain/entities/check_list_t
 import 'package:checklist_app/check_list_topic_page/presentation/manager/topics_cubit.dart';
 import 'package:checklist_app/check_list_topic_page/presentation/manager/topics_state.dart';
 import 'package:checklist_app/check_list_topic_page/presentation/widgets/built_topic_card.dart';
+import 'package:checklist_app/check_list_topic_page/presentation/widgets/show_update_topic_dialog.dart';
 import 'package:checklist_app/checklist/domain/entities/check_list_item.dart';
 import 'package:checklist_app/core/custom_widgets/toast_service.dart';
+import 'package:checklist_app/core/themes/app_colors.dart';
 import 'package:checklist_app/core/themes/app_text_styles.dart';
 import 'package:checklist_app/core/utils/custom_loader.dart';
 import 'package:flutter/material.dart';
@@ -88,6 +90,25 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody>
     context.read<TopicsCubit>().addNewTopic(widget.checklistItem.name, topic);
   }
 
+  void showUpdateTopicDialog(
+      BuildContext context, CheckListTopicEntity topic, String checklistName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext contxt) {
+        return UpdateTopicFormDialog(
+          topic: topic,
+          checklistName: checklistName,
+          onUpdateTopic: (checklistName, topic) {
+            context.read<TopicsCubit>().updateTopic(
+                  checklistName: checklistName,
+                  topic: topic,
+                );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -104,6 +125,11 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody>
               ToastService().showToast(context, "Topic removed successfully");
             } else if (state.removeTopicState.isFailure) {
               ToastService().showToast(context, "Failed to remove topic");
+            }
+            if (state.updateTopicState.isSuccess) {
+              ToastService().showToast(context, "Topic updated successfully");
+            } else if (state.updateTopicState.isFailure) {
+              ToastService().showToast(context, "Failed to update topic");
             }
           },
           child: BlocBuilder<TopicsCubit, TopicsState>(
@@ -131,14 +157,21 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody>
                                 _deleteTopic(topic);
                               }
                             },
-                            onUpdate: () {},
+                            onUpdate: () {
+                              showUpdateTopicDialog(
+                                  context, topic, widget.checklistItem.name);
+                            },
                           );
                         },
                       )
-                    : (state.getTopicsState.isLoading||state.addTopicState.isLoading)
+                    : (state.getTopicsState.isLoading ||
+                            state.addTopicState.isLoading)
                         ? const SizedBox.shrink()
-                        : const Center(
-                            child: Text("No Topics Available"),
+                        : Center(
+                            child: Text(
+                              "No Topics Available",
+                              style: AppTextStyles.nunitoFont20Medium(context),
+                            ),
                           ),
                 floatingActionButton: FloatingActionButton(
                   onPressed: _showAddTopicDialog,
@@ -169,7 +202,10 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody>
         String topicDescription = '';
 
         return AlertDialog(
-          title: const Text('Add New Topic'),
+          title: Text(
+            'Add New Topic',
+            style: AppTextStyles.nunitoFont20Medium(context),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -194,7 +230,11 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody>
                 _addTopic(topicName, topicDescription);
                 Navigator.of(context).pop();
               },
-              child: const Text('Add'),
+              child: Text(
+                'Add',
+                style: AppTextStyles.nunitoFont20Medium(context,
+                    color: AppColors.blackColor),
+              ),
             ),
           ],
         );

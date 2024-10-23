@@ -10,6 +10,17 @@ class CheckListTopicEntity extends Equatable {
     required this.name,
     required this.description,
   });
+  CheckListTopicEntity copyWith({
+    String? topicId,
+    String? name,
+    String? description,
+  }) {
+    return CheckListTopicEntity(
+      topicId: topicId ?? this.topicId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+    );
+  }
 
   @override
   List<Object?> get props => [

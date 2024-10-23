@@ -71,12 +71,13 @@ class AppTextStyles {
         fontFamily: AppStrings.nunitoFontFamily,
       );
 
-  static TextStyle nunitoFont20Medium(BuildContext context, {Color? color}) => TextStyle(
+  static TextStyle nunitoFont20Medium(BuildContext context, {Color? color}) =>
+      TextStyle(
         fontSize:
             getResponsiveFontSize(context, fontSize: PaddingDimensions.large),
         fontWeight: FontWeight.w500,
         fontFamily: AppStrings.nunitoFontFamily,
-        color: color??AppColors.mediumGrey,
+        color: color ?? AppColors.mediumGrey,
       );
 
   static TextStyle nunitoFont16Regular(BuildContext context) => TextStyle(
@@ -84,6 +85,7 @@ class AppTextStyles {
             getResponsiveFontSize(context, fontSize: PaddingDimensions.large),
         fontWeight: FontWeight.w400,
         fontFamily: AppStrings.nunitoFontFamily,
+        color: AppColors.white,
       );
 
   static TextStyle nunitoFont20Regular(BuildContext context) => TextStyle(

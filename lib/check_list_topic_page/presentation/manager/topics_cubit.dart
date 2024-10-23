@@ -58,7 +58,6 @@ class TopicsCubit extends Cubit<TopicsState> {
       print('Removed topic successfully');
       await fetchTopicsByChecklistName(checklistName);
     } catch (e) {
-      print('================================');
       emit(
           state.reduce(removeTopicState: Async.failure(Failure(e.toString()))));
     }
