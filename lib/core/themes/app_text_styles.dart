@@ -80,12 +80,12 @@ class AppTextStyles {
         color: color ?? AppColors.mediumGrey,
       );
 
-  static TextStyle nunitoFont16Regular(BuildContext context) => TextStyle(
+  static TextStyle nunitoFont16Regular(BuildContext context,{Color? color}) => TextStyle(
         fontSize:
             getResponsiveFontSize(context, fontSize: PaddingDimensions.large),
         fontWeight: FontWeight.w400,
         fontFamily: AppStrings.nunitoFontFamily,
-        color: AppColors.white,
+        color:color?? AppColors.white,
       );
 
   static TextStyle nunitoFont20Regular(BuildContext context) => TextStyle(

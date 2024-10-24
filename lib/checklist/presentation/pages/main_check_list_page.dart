@@ -1,45 +1,42 @@
-import 'package:checklist_app/check_list_topic_page/presentation/pages/checkList_topic_page.dart';
 import 'package:checklist_app/checklist/domain/entities/check_list_item.dart';
 import 'package:checklist_app/checklist/presentation/manager/checklist_cubit.dart';
 import 'package:checklist_app/checklist/presentation/manager/checklist_state.dart';
+import 'package:checklist_app/checklist/presentation/widgets/build_reorderable_check_list_item.dart';
 import 'package:checklist_app/core/custom_widgets/app_text_field_input.dart';
 import 'package:checklist_app/core/themes/app_text_styles.dart';
 import 'package:checklist_app/core/utils/custom_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ChecklistApp extends StatelessWidget {
-  const ChecklistApp({super.key});
+class MainChecklistPage extends StatelessWidget {
+  const MainChecklistPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ChecklistCubit()..loadItems(),
+      create: (context) => ChecklistCubit()..loadChecklistItems(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Checklist App'),
+          title: Text(
+            'Checklist App',
+            style: AppTextStyles.nunitoFont20Medium(context),
+          ),
         ),
-        body: const ChecklistAppBody(),
+        body: const _ChecklistBody(),
       ),
     );
   }
 }
 
-class ChecklistAppBody extends StatefulWidget {
-  const ChecklistAppBody({super.key});
+class _ChecklistBody extends StatefulWidget {
+  const _ChecklistBody({super.key});
 
   @override
-  State<ChecklistAppBody> createState() => _ChecklistAppBodyState();
+  State<_ChecklistBody> createState() => _ChecklistBodyState();
 }
 
-class _ChecklistAppBodyState extends State<ChecklistAppBody> {
-  final TextEditingController _addChecklistTopicController =
-      TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
+class _ChecklistBodyState extends State<_ChecklistBody> {
+  final _addChecklistTopicController = TextEditingController();
 
   void _onSuffixIconPressed() {
     if (_addChecklistTopicController.text.isNotEmpty) {
@@ -47,6 +44,7 @@ class _ChecklistAppBodyState extends State<ChecklistAppBody> {
             ChecklistItem(
               id: DateTime.now().toString(),
               name: _addChecklistTopicController.text,
+
             ),
           );
       _addChecklistTopicController.clear();
@@ -55,6 +53,12 @@ class _ChecklistAppBodyState extends State<ChecklistAppBody> {
 
   void _onRemoveChecklistTopic(String id) {
     context.read<ChecklistCubit>().removeChecklistItem(id);
+  }
+
+  @override
+  void dispose() {
+    _addChecklistTopicController.dispose();
+    super.dispose();
   }
 
   @override
@@ -88,34 +92,7 @@ class _ChecklistAppBodyState extends State<ChecklistAppBody> {
                       final checklist = state.getChecklistItemsState.data;
                       if (checklist != null) {
                         return checklist.isNotEmpty
-                            ? ListView.builder(
-                                itemCount: checklist.length,
-                                itemBuilder: (context, index) {
-                                  final checklistItem = checklist[index];
-                                  return ListTile(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              CheckListTopicPage(
-                                                  checklistItem: checklistItem),
-                                        ),
-                                      );
-                                    },
-                                    title: Text(
-                                      checklistItem.name,
-                                      style: AppTextStyles.playfairFont24Bold(
-                                          context),
-                                    ),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () => _onRemoveChecklistTopic(
-                                          checklistItem.id),
-                                    ),
-                                  );
-                                },
-                              )
+                            ? BuildReorderableCheckListItem(checklistItems: checklist)
                             : Center(
                                 child: Text(
                                   "No Checklist Items",

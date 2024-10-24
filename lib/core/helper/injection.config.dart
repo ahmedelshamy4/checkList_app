@@ -32,6 +32,10 @@ import 'package:checklist_app/checklist/domain/use_cases/get_%20check_list_items
     as _i670;
 import 'package:checklist_app/checklist/domain/use_cases/remove_check_list_item_use_case.dart'
     as _i518;
+import 'package:checklist_app/checklist/domain/use_cases/saving_reorder_checklist_use_case.dart'
+    as _i263;
+import 'package:checklist_app/checklist/domain/use_cases/update_check_list_item_use_case.dart'
+    as _i1042;
 import 'package:checklist_app/checklist/presentation/manager/checklist_cubit.dart'
     as _i348;
 import 'package:checklist_app/core/helper/injection.dart' as _i333;
@@ -90,6 +94,10 @@ extension GetItInjectableX on _i174.GetIt {
         _i518.RemoveChecklistItemUseCase(gh<_i956.ChecklistRepository>()));
     gh.factory<_i1007.AddChecklistItemUseCase>(
         () => _i1007.AddChecklistItemUseCase(gh<_i956.ChecklistRepository>()));
+    gh.factory<_i1042.UpdateChecklistItemUseCase>(() =>
+        _i1042.UpdateChecklistItemUseCase(gh<_i956.ChecklistRepository>()));
+    gh.factory<_i263.SavingReorderChecklistUseCase>(() =>
+        _i263.SavingReorderChecklistUseCase(gh<_i956.ChecklistRepository>()));
     gh.factory<_i393.AddCheckListTopicUseCase>(() =>
         _i393.AddCheckListTopicUseCase(gh<_i335.CheckListTopicRepository>()));
     gh.factory<_i1014.RemoveCheckListTopicUseCase>(() =>

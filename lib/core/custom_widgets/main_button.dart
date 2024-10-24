@@ -111,6 +111,6 @@ class MainButton extends StatelessWidget {
   Color _backgroundColor(BuildContext context) {
     return isOutlined
         ? Colors.white // Replace with _outlinedBackgroundColor(context) in your project
-        : AppColors.mediumGrey;  // Replace with AppColors.primaryColor in your project
+        : AppColors.mediumGrey.withOpacity(.2);  // Replace with AppColors.primaryColor in your project
   }
 }

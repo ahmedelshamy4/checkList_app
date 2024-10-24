@@ -6,6 +6,8 @@ class TopicDetailsEntity extends Equatable {
   final String description;
   final String? subDescription;
   final List<String> packageNames;
+  // final List<bool> selectedPackages;
+  // final double progress;
 
   const TopicDetailsEntity({
     required this.id,
@@ -13,6 +15,8 @@ class TopicDetailsEntity extends Equatable {
     required this.description,
     this.subDescription,
     required this.packageNames,
+    // required this.selectedPackages, // Initialize selected packages
+    // required this.progress,
   });
 
   TopicDetailsEntity copyWith({
@@ -21,6 +25,8 @@ class TopicDetailsEntity extends Equatable {
     String? description,
     String? subDescription,
     List<String>? packageNames,
+    List<bool>? selectedPackages,
+    double? progress,
   }) {
     return TopicDetailsEntity(
       id: id ?? this.id,
@@ -28,13 +34,18 @@ class TopicDetailsEntity extends Equatable {
       description: description ?? this.description,
       subDescription: subDescription ?? this.subDescription,
       packageNames: packageNames ?? this.packageNames,
+      // selectedPackages: selectedPackages ?? this.selectedPackages,
+      // progress: progress ?? this.progress,
     );
   }
+
   @override
   List<Object?> get props => [
         id,
         title,
         description,
         packageNames,
+        // selectedPackages,
+        // progress,
       ];
 }

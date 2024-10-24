@@ -12,10 +12,13 @@ class ChecklistRepositoryImpl implements ChecklistRepository {
   ChecklistRepositoryImpl({required this.firestore});
 
   @override
-  Future<void> addItem(ChecklistItem item) async {
+  Future<void> addCheckListItem(ChecklistItem item) async {
     try {
-      final apiItem = ApiChecklistItemModel(id: item.id, name: item.name);
-      await firestore.collection(AppConstants.checklistCollection).add(apiItem.toFirestore());
+      final apiItem =
+          ApiChecklistItemModel(id: item.id, name: item.name, order: 0);
+      await firestore
+          .collection(AppConstants.checklistCollection)
+          .add(apiItem.toFirestore());
       print("Item successfully added");
     } catch (e) {
       print("Error adding item: $e");
@@ -23,9 +26,12 @@ class ChecklistRepositoryImpl implements ChecklistRepository {
   }
 
   @override
-  Future<List<ChecklistItem>> getItems() async {
+  Future<List<ChecklistItem>> getCheckListItems() async {
     try {
-      final snapshot = await firestore.collection(AppConstants.checklistCollection).get();
+      final snapshot = await firestore
+          .collection(AppConstants.checklistCollection)
+          .orderBy('order',descending: false)
+          .get();
       return snapshot.docs
           .map((doc) => ApiChecklistItemModel.fromFirestore(
                 doc.data(),
@@ -39,7 +45,53 @@ class ChecklistRepositoryImpl implements ChecklistRepository {
   }
 
   @override
-  Future<void> removeItem(String id) async {
-    await firestore.collection(AppConstants.checklistCollection).doc(id).delete();
+  Future<void> removeCheckListItem(String id) async {
+    try {
+      await firestore
+          .collection(AppConstants.checklistCollection)
+          .doc(id)
+          .delete();
+    } catch (e) {
+      print("Error removing item: $e");
+    }
+  }
+
+  @override
+  Future<void> updateCheckListItem(ChecklistItem item) async {
+    try {
+      final apiItem = ApiChecklistItemModel(
+        id: item.id,
+        name: item.name,
+        order: item.order,
+      );
+      await firestore
+          .collection(AppConstants.checklistCollection)
+          .doc(item.id)
+          .update(apiItem.toFirestore());
+      print("Item successfully updated");
+    } catch (e) {
+      print("Error updating item: $e");
+    }
+  }
+
+  @override
+  Future<void> saveChecklistOrder(List<ChecklistItem> checklist) async {
+    try {
+      for (int index = 0; index < checklist.length; index++) {
+        final item = checklist[index];
+        final apiItem = ApiChecklistItemModel(
+          id: item.id,
+          name: item.name,
+          order: index,
+        );
+        await firestore
+            .collection(AppConstants.checklistCollection)
+            .doc(item.id)
+            .update(apiItem.toFirestore());
+      }
+      print("Checklist order successfully updated");
+    } catch (e) {
+      print("Error saving checklist order: $e");
+    }
   }
 }

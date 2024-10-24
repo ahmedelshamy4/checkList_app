@@ -5,12 +5,14 @@ import 'package:equatable/equatable.dart';
 class ChecklistState extends Equatable {
   final Async<void> addChecklistItemState;
   final Async<void> deleteChecklistItemState;
+  final Async<void> updateChecklistItemState;
   final Async<List<ChecklistItem>> getChecklistItemsState;
   final String? errorMessage;
 
   const ChecklistState(
     this.addChecklistItemState,
     this.deleteChecklistItemState,
+    this.updateChecklistItemState,
     this.getChecklistItemsState,
     this.errorMessage,
   );
@@ -20,18 +22,21 @@ class ChecklistState extends Equatable {
           const Async.initial(),
           const Async.initial(),
           const Async.initial(),
+          const Async.initial(),
           null,
         );
 
   ChecklistState reduce({
     Async<void>? addChecklistItemState,
     Async<void>? deleteChecklistItemState,
+    Async<void>? updateChecklistItemState,
     Async<List<ChecklistItem>>? getChecklistItemsState,
     String? errorMesage,
   }) {
     return ChecklistState(
       addChecklistItemState ?? this.addChecklistItemState,
       deleteChecklistItemState ?? this.deleteChecklistItemState,
+      updateChecklistItemState ?? this.updateChecklistItemState,
       getChecklistItemsState ?? this.getChecklistItemsState,
       errorMessage,
     );
@@ -42,6 +47,7 @@ class ChecklistState extends Equatable {
         addChecklistItemState,
         deleteChecklistItemState,
         getChecklistItemsState,
+        updateChecklistItemState,
         errorMessage,
       ];
 }

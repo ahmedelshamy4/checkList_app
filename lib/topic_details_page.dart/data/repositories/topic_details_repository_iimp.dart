@@ -61,21 +61,6 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
     }
   }
 
-  @override
-  Future<TopicDetailsEntity?> getTopicById(String topicId) async {
-    final docSnapshot = await firestore.collection('topics').doc(topicId).get();
-
-    if (!docSnapshot.exists) return null;
-
-    final data = docSnapshot.data()!;
-    return TopicDetailsEntity(
-      id: topicId,
-      title: data['title'],
-      description: data['description'],
-      subDescription: data['subDescription'],
-      packageNames: List<String>.from(data['packageNames']),
-    );
-  }
 
   @override
   Future<void> deleteTopicDetailsItem(
@@ -95,10 +80,9 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
     }
   }
 
-
   @override
-  Future<void> updateTopicDetails(
-      String checklistId, String topicId, String detailsId, TopicDetailsEntity updatedDetails) async {
+  Future<void> updateTopicDetails(String checklistId, String topicId,
+      String detailsId, TopicDetailsEntity updatedDetails) async {
     try {
       await firestore
           .collection(AppConstants.checklistCollection)
@@ -118,5 +102,4 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
       print("Error updating topic details: $e");
     }
   }
-
 }

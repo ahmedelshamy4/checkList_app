@@ -1,6 +1,5 @@
-import 'package:checklist_app/checklist/presentation/pages/check_list_app.dart';
+import 'package:checklist_app/checklist/presentation/pages/main_check_list_page.dart';
 import 'package:checklist_app/cubit/app_cubit.dart';
-import 'package:checklist_app/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -25,7 +24,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
-          home: const ChecklistApp(),
+          home: const MainChecklistPage(),
         ),
         breakpoints: [
           const Breakpoint(start: 0, end: 450, name: MOBILE),

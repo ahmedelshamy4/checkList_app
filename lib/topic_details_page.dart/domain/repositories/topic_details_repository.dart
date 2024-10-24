@@ -25,5 +25,4 @@ abstract class TopicDetailsRepository {
     String topicId,
   );
 
-  Future<TopicDetailsEntity?> getTopicById(String topicId);
 }

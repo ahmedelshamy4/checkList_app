@@ -9,6 +9,6 @@ class AddChecklistItemUseCase {
   AddChecklistItemUseCase(this._repository);
 
   Future<void> execute(ChecklistItem item) async {
-    await _repository.addItem(item);
+    await _repository.addCheckListItem(item);
   }
 }

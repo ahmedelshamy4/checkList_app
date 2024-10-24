@@ -3,11 +3,14 @@ import 'package:checklist_app/core/custom_widgets/toast_service.dart';
 import 'package:checklist_app/core/themes/app_colors.dart';
 import 'package:checklist_app/core/themes/app_text_styles.dart';
 import 'package:checklist_app/core/utils/custom_loader.dart';
+import 'package:checklist_app/core/utils/dimensions.dart';
 import 'package:checklist_app/topic_details_page.dart/domain/entities/topic_details_entity.dart';
 import 'package:checklist_app/topic_details_page.dart/presentation/manager/topic_details_cubit.dart';
 import 'package:checklist_app/topic_details_page.dart/presentation/manager/topic_details_state.dart';
+import 'package:checklist_app/topic_details_page.dart/presentation/widgets/add_or_edit_topic_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
 
 class TopicDetailsPage extends StatelessWidget {
   final CheckListTopicEntity topic;
@@ -42,92 +45,17 @@ class _TopicDetailsForm extends StatefulWidget {
 }
 
 class _TopicDetailsFormState extends State<_TopicDetailsForm> {
-  List<TopicDetailsEntity> _list = [];
+  List<TopicDetailsEntity> _detailsList = [];
 
-  void _showAddOrEditTopicDialog({TopicDetailsEntity? item}) {
-    String topicItemName = item?.title ?? '';
-    String topicItemDescription = item?.description ?? '';
-    String topicItemSubDescription = item?.subDescription ?? '';
-    String packageNames = item?.packageNames.join(', ') ?? '';
-
+  void _showAddOrEditTopicDialog(BuildContext context,
+      {TopicDetailsEntity? item}) {
     showDialog(
       context: context,
-      builder: (BuildContext contxt) {
-        return AlertDialog(
-          title: Text(
-            item == null ? 'Add New Item' : 'Edit Item',
-            style: AppTextStyles.nunitoFont20Medium(contxt),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: const InputDecoration(hintText: 'Item Name'),
-                onChanged: (value) {
-                  topicItemName = value;
-                },
-                controller: TextEditingController(text: topicItemName),
-              ),
-              TextField(
-                decoration:
-                    const InputDecoration(hintText: 'Topic Description'),
-                onChanged: (value) {
-                  topicItemDescription = value;
-                },
-                controller: TextEditingController(text: topicItemDescription),
-              ),
-              TextField(
-                decoration: const InputDecoration(hintText: 'Sub Description'),
-                onChanged: (value) {
-                  topicItemSubDescription = value;
-                },
-                controller:
-                    TextEditingController(text: topicItemSubDescription),
-              ),
-              TextField(
-                decoration: const InputDecoration(
-                    hintText: 'Package Names (comma-separated)'),
-                onChanged: (value) {
-                  packageNames = value;
-                },
-                controller: TextEditingController(text: packageNames),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                final newItem = TopicDetailsEntity(
-                  title: topicItemName,
-                  description: topicItemDescription,
-                  subDescription: topicItemSubDescription,
-                  id: item?.id ?? '',
-                  packageNames:
-                      packageNames.split(',').map((e) => e.trim()).toList(),
-                );
-
-                if (item == null) {
-                  context.read<TopicDetailsCubit>().addDetailsItemForTopic(
-                        topicId: widget.topic.topicId,
-                        checklistId: widget.checklistId,
-                        details: newItem,
-                      );
-                } else {
-                  context.read<TopicDetailsCubit>().updateDetailsItemForTopic(
-                        topicId: widget.topic.topicId,
-                        checklistId: widget.checklistId,
-                        updatedDetails: newItem,
-                      );
-                }
-                Navigator.of(contxt).pop();
-              },
-              child: Text(
-                item == null ? 'Add' : 'Update',
-                style: AppTextStyles.nunitoFont20Medium(contxt,
-                    color: AppColors.blackColor),
-              ),
-            ),
-          ],
+      builder: (BuildContext context) {
+        return AddOrEditTopicDialog(
+          item: item,
+          topicId: widget.topic.topicId,
+          checklistId: widget.checklistId,
         );
       },
     );
@@ -140,7 +68,7 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
         BlocConsumer<TopicDetailsCubit, TopicDetailsState>(
           listener: (context, state) {
             if (state.getDetailsTopicsState.isSuccess) {
-              _list = state.getDetailsTopicsState.data ?? [];
+              _detailsList = state.getDetailsTopicsState.data ?? [];
             } else if (state.getDetailsTopicsState.isFailure) {
               ToastService().showToast(context, "Failed to fetch topics");
             }
@@ -168,46 +96,102 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                   style: AppTextStyles.nunitoFont20Medium(context),
                 ),
               ),
-              body: _list.isNotEmpty
-                  ? ListView.builder(
-                      itemCount: _list.length,
+              body: _detailsList.isNotEmpty
+                  ? ListView.separated(
+                      separatorBuilder: (context, index) => const Divider(),
+                      itemCount: _detailsList.length,
                       itemBuilder: (context, index) {
-                        final item = _list[index];
+                        final item = _detailsList[index];
                         return ListTile(
-                          title: Text(item.title),
+                          title: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: PaddingDimensions.normal),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: AppColors.mediumGrey.withOpacity(.1),
+                            ),
+                            // color: Colors.red,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    textAlign: TextAlign.center,
+                                    item.title,
+                                    style: AppTextStyles.playfairFont16Bold(
+                                        context),
+                                  ),
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () {
+                                        _showAddOrEditTopicDialog(context,
+                                            item: _detailsList[index]);
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () {
+                                        context
+                                            .read<TopicDetailsCubit>()
+                                            .removeDetailsItemForTopic(
+                                              checklistId: widget.checklistId,
+                                              topicId: widget.topic.topicId,
+                                              detailsId: item.id,
+                                            );
+                                      },
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(item.description),
+                              Text(
+                                item.description,
+                                style: AppTextStyles.nunitoFont16Regular(
+                                  context,
+                                  color: AppColors.blackColor,
+                                ),
+                              ),
                               if (item.subDescription != null)
-                                Text(item.subDescription!),
-                              Text('Packages: ${item.packageNames.join(', ')}'),
+                                Text(
+                                  item.subDescription!,
+                                  style: AppTextStyles.nunitoFont16Regular(
+                                      color: AppColors.blackColor, context),
+                                ),
+                              const Gap(PaddingDimensions.normal),
+                              Text(
+                                'Packages:',
+                                style: AppTextStyles.ralewayFont20SemiBold(
+                                    context),
+                              ),
+                              SizedBox(
+                                height: 200,
+                                child: ListView.builder(
+                                  itemCount: item.packageNames.length,
+                                  itemBuilder: (context, index) {
+                                    return ListTile(
+                                      title: Text(
+                                        item.packageNames[index],
+                                        style:
+                                            AppTextStyles.nunitoFont16Regular(
+                                                context,
+                                                color: AppColors.blackColor),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              )
                             ],
                           ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () {
-                                  _showAddOrEditTopicDialog(item: _list[index]);
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  context
-                                      .read<TopicDetailsCubit>()
-                                      .removeDetailsItemForTopic(
-                                        checklistId: widget.checklistId,
-                                        topicId: widget.topic.topicId,
-                                        detailsId: item.id,
-                                      );
-                                },
-                              ),
-                            ],
-                          ),
-                          onTap: () {},
                         );
                       },
                     )
@@ -220,7 +204,7 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                           style: AppTextStyles.nunitoFont20Medium(context),
                         )),
               floatingActionButton: FloatingActionButton(
-                onPressed: _showAddOrEditTopicDialog,
+                onPressed: () => _showAddOrEditTopicDialog(context, item: null),
                 child: const Icon(Icons.add),
               ),
             );

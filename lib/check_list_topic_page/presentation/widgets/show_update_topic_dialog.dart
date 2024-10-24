@@ -76,7 +76,12 @@ class _UpdateTopicFormState extends State<_UpdateTopicForm> {
     _descriptionController =
         TextEditingController(text: widget.topic.description);
   }
-
+@override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Form(

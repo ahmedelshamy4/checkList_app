@@ -8,6 +8,6 @@ class RemoveChecklistItemUseCase {
   RemoveChecklistItemUseCase(this._repository);
 
   Future<void> execute(String id) async {
-    await _repository.removeItem(id);
+    await _repository.removeCheckListItem(id);
   }
 }
