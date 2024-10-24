@@ -1,3 +1,5 @@
+import 'package:checklist_app/core/themes/app_text_styles.dart';
+import 'package:checklist_app/core/utils/dimensions.dart';
 import 'package:checklist_app/topic_details_page.dart/presentation/pages/topic_details_page.dart';
 import 'package:checklist_app/topic_page/domain/entities/topic_entity.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +20,17 @@ class BuiltTopicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(topic.name),
-      subtitle: Text(topic.description),
+      title: Text(
+        "💡${topic.name} ",
+        style: AppTextStyles.nunitoFont20Medium(context),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: PaddingDimensions.large),
+        child: Text(
+          topic.description,
+          style: AppTextStyles.nunitoFont20Medium(context),
+        ),
+      ),
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => TopicDetailsPage(
           topic: topic,

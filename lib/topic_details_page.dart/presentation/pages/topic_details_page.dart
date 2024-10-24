@@ -1,3 +1,4 @@
+import 'package:checklist_app/core/custom_widgets/custom_check_box_tile.dart';
 import 'package:checklist_app/core/custom_widgets/toast_service.dart';
 import 'package:checklist_app/core/themes/app_colors.dart';
 import 'package:checklist_app/core/themes/app_text_styles.dart';
@@ -117,37 +118,37 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
   @override
   void initState() {
     super.initState();
-    _initializeState();
   }
 
-  void _initializeState() {
-    if (_detailsList.isNotEmpty) {
-      for (var detail in _detailsList) {
-        if (detail.selectedPackages.isEmpty) {
-          print('_initializeState${detail.packages.length}');
-          // Initialize selectedPackages with false if not already set
-          // detail.selectedPackages =
-          //     List.generate(detail.packages.length, (_) => false);
-        }
-      }
+  int _calculateTotalSelectedPackages(List<TopicDetailsEntity> detailsList) {
+    int totalSelected = 0;
+    for (var details in detailsList) {
+      totalSelected +=
+          details.selectedPackages.where((pkg) => pkg.isSelected).length;
     }
+    return totalSelected;
   }
 
-  // void _updateProgress(TopicDetailsEntity entity) {
-  //   final selectedCount =
-  //       entity.selectedPackages.where((isSelected) => isSelected).length;
-  //   final totalPackages = entity.selectedPackages.length;
-  //   setState(() {
-  //     entity.progress =
-  //         totalPackages > 0 ? (selectedCount / totalPackages) : 0.0;
-  //   });
-  // }
+  int _calculateTotalPackages(TopicDetailsEntity item) {
+    return item.selectedPackages.length;
+  }
 
-  // void _updateProgress(TopicDetailsEntity item) {
-  //   int total = item.packages.length;
-  //   int selected = item.selectedPackages.where((selected) => selected).length;
-  //   item.progress = selected / total;
-  // }
+  double _calculateOverallProgress() {
+    int totalPackages = 0;
+    int selectedPackages = 0;
+
+    for (var item in _detailsList) {
+      totalPackages += item.selectedPackages.length;
+      selectedPackages +=
+          item.selectedPackages.where((e) => e.isSelected).length;
+    }
+
+    return totalPackages == 0 ? 0.0 : selectedPackages / totalPackages;
+  }
+
+  bool _areAllPackagesSelected(TopicDetailsEntity item) {
+    return item.selectedPackages.every((pkg) => pkg.isSelected);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +158,9 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
           listener: (context, state) {
             if (state.getDetailsTopicsState.isSuccess) {
               _detailsList = state.getDetailsTopicsState.data ?? [];
-              _initializeState();
             } else if (state.getDetailsTopicsState.isFailure) {
-              print('=errorMessage=:: ${state.getDetailsTopicsState.failure?.errorMessage.toString()}');
+              print(
+                  '=errorMessage=:: ${state.getDetailsTopicsState.failure?.errorMessage.toString()}');
               ToastService().showToast(context, "Failed to fetch topics");
             }
             if (state.addDetailsTopicState.isSuccess) {
@@ -172,14 +173,13 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
             } else if (state.removeDetailsTopicState.isFailure) {
               ToastService().showToast(context, "Failed to remove  item");
             }
-            if (state.updateDetailsTopicState.isSuccess) {
-              ToastService().showToast(context, "Item Updated successfully");
-            } else if (state.updateDetailsTopicState.isFailure) {
+            if (state.updateDetailsTopicState.isFailure) {
               ToastService().showToast(context, "Failed to update item");
             }
           },
           builder: (context, state) {
             return Scaffold(
+              backgroundColor: AppColors.white,
               appBar: AppBar(
                 title: Text(
                   widget.topic.name,
@@ -189,23 +189,31 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
               body: _detailsList.isNotEmpty
                   ? Column(
                       children: [
-                        const SizedBox(height: 10),
-                        // Row for Total Count and Selected Checked
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          padding: const EdgeInsets.all(16.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                'Total: ${_detailsList.length}',
-                                style:
-                                    AppTextStyles.nunitoFont20Medium(context),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: LinearProgressIndicator(
+                                    value: _calculateOverallProgress(),
+                                    backgroundColor: AppColors.mediumGrey.withOpacity(.1),
+                                    color: AppColors.primaryColor,
+                                    borderRadius: BorderRadius.circular(8),
+
+                                  ),
+                                ),
                               ),
-                              // Text(
-                              //   'Selected: ${_detailsList.where((item) => item.isSelected).length}',
-                              //   style:
-                              //       AppTextStyles.nunitoFont20Medium(context),
-                              // ),
+                              const Gap(PaddingDimensions.large),
+                              Text(
+                                '${(_calculateOverallProgress() * 100).toStringAsFixed(1)}%',
+                                style: AppTextStyles.nunitoFont20Medium(
+                                  context,
+                                  color: AppColors.redColor,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -213,125 +221,161 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                           child: ListView.separated(
                             separatorBuilder: (context, index) =>
                                 const Divider(),
+                            padding: EdgeInsets.zero,
                             itemCount: _detailsList.length,
                             itemBuilder: (context, index) {
                               final item = _detailsList[index];
-                              return ListTile(
-                                title: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: PaddingDimensions.normal),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: AppColors.mediumGrey.withOpacity(.1),
-                                  ),
-                                  // color: Colors.red,
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          textAlign: TextAlign.center,
-                                          item.title,
-                                          style:
-                                              AppTextStyles.nunitoFont20Medium(
-                                                  context),
-                                        ),
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.edit),
-                                            onPressed: () {
-                                              _showAddOrEditTopicDialog(context,
-                                                  item: _detailsList[index]);
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete),
-                                            onPressed: () =>
-                                                _showDeleteTopicDialog(
-                                                    context, item.id),
+                              return Container(
+                                color: _areAllPackagesSelected(item)
+                                    ? AppColors.mediumGrey.withOpacity(.1)
+                                    : AppColors.white,
+                                child: ListTile(
+                                  title: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: PaddingDimensions.normal),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color:
+                                          AppColors.mediumGrey.withOpacity(.1),
+                                    ),
+                                    // color: Colors.red,
+                                    child: Row(
+                                      children: [
+                                        if (_areAllPackagesSelected(item)) ...[
+                                          const Gap(PaddingDimensions.large),
+                                          Text(
+                                            " ✅",
+                                            style: AppTextStyles
+                                                .nunitoFont20Medium(context),
                                           ),
                                         ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.description,
-                                      style: AppTextStyles.nunitoFont16Regular(
-                                        context,
-                                        color: AppColors.blackColor,
-                                      ),
+                                        Expanded(
+                                          child: Text(
+                                            textAlign: TextAlign.center,
+                                            "🚀 ${item.title}",
+                                            style: AppTextStyles
+                                                .nunitoFont20Medium(context),
+                                          ),
+                                        ),
+                                        _areAllPackagesSelected(item)
+                                            ? const SizedBox.shrink()
+                                            : Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  IconButton(
+                                                    icon:
+                                                        const Icon(Icons.edit),
+                                                    onPressed: () {
+                                                      _showAddOrEditTopicDialog(
+                                                          context,
+                                                          item: _detailsList[
+                                                              index]);
+                                                    },
+                                                  ),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                        Icons.delete),
+                                                    onPressed: () =>
+                                                        _showDeleteTopicDialog(
+                                                            context, item.id),
+                                                  ),
+                                                ],
+                                              )
+                                      ],
                                     ),
-                                    if (item.subDescription != null &&
-                                        (item.subDescription?.isNotEmpty ??
-                                            false)) ...[
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
                                       Text(
-                                        item.subDescription ?? '',
+                                        "👉 ${item.description}",
                                         style:
                                             AppTextStyles.nunitoFont16Regular(
-                                                color: AppColors.blackColor,
-                                                context),
+                                          context,
+                                          color: AppColors.blackColor,
+                                        ),
+                                      ),
+                                      if (item.subDescription != null &&
+                                          (item.subDescription?.isNotEmpty ??
+                                              false)) ...[
+                                        Text(
+                                          "👉 ${item.subDescription ?? ''}",
+                                          style:
+                                              AppTextStyles.nunitoFont16Regular(
+                                                  color: AppColors.blackColor,
+                                                  context),
+                                        ),
+                                      ],
+                                      const Gap(PaddingDimensions.normal),
+                                      Card(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: PaddingDimensions.normal,
+                                            horizontal:
+                                                PaddingDimensions.normal,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  '👇 Packages:',
+                                                  style: AppTextStyles
+                                                      .ralewayFont20SemiBold(
+                                                          context),
+                                                ),
+                                              ),
+                                              Text(
+                                                'Selected: ${_calculateTotalSelectedPackages(_detailsList)} / TotalPackages: ${_calculateTotalPackages(item)}',
+                                                style: AppTextStyles
+                                                    .nunitoFont16Bold(context),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              .2,
+                                        ),
+                                        child: ListView.builder(
+                                          itemCount: item.packages.length,
+                                          itemBuilder: (context, index) {
+                                            final packageName =
+                                                item.selectedPackages[index];
+                                            return CustomCheckBoxTile(
+                                              paddingInsets: EdgeInsets.zero,
+                                              value: packageName.isSelected,
+                                              title: packageName.name,
+                                              onChanged: (value) {
+                                                if (value == null) return;
+                                                item.selectedPackages[index]
+                                                    .isSelected = value;
+                                                context
+                                                    .read<TopicDetailsCubit>()
+                                                    .updateDetailsItemForTopic(
+                                                      topicId:
+                                                          widget.topic.topicId,
+                                                      checklistId:
+                                                          widget.checklistId,
+                                                      updatedDetails: item,
+                                                    );
+
+                                                setState(() {});
+                                              },
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ],
-                                    const Gap(PaddingDimensions.normal),
-                                    Text(
-                                      'Packages:',
-                                      style:
-                                          AppTextStyles.ralewayFont20SemiBold(
-                                              context),
-                                    ),
-                                    SizedBox(
-                                      height: 200,
-                                      child: ListView.builder(
-                                        itemCount: item.packages.length,
-                                        itemBuilder: (context, index) {
-                                          final package = item.packages[index];
-                                          final packageName = item.selectedPackages[index];
-                                          return Card(
-                                            child: ListTile(
-                                              title: Text(
-                                                package,
-                                                style: AppTextStyles
-                                                    .nunitoFont16Regular(
-                                                        context,
-                                                        color: AppColors
-                                                            .blackColor),
-                                              ),
-                                              trailing: Checkbox(
-                                                value: item.selectedPackages[index].isSelected,
-                                                onChanged: (value) {
-                                                  if (value == null) return;
-                                                  item.selectedPackages[index].isSelected = value;
-                                                  context.read<TopicDetailsCubit>().updateDetailsItemForTopic(
-                                                    topicId: widget.topic.topicId,
-                                                    checklistId: widget.checklistId,
-                                                    updatedDetails: item,
-                                                  );
-
-                                                  setState(() {});
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    LinearProgressIndicator(
-                                      value: item.progress,
-                                      backgroundColor: Colors.grey[300],
-                                      color: Colors.blue,
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               );
                             },
