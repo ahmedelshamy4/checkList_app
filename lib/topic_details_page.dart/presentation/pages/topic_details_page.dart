@@ -149,7 +149,11 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
   bool _areAllPackagesSelected(TopicDetailsEntity item) {
     return item.selectedPackages.every((pkg) => pkg.isSelected);
   }
-
+  int _calculateTotalSelected() {
+    return _detailsList.fold(0, (total, item) {
+      return total + item.selectedPackages.where((pkg) => pkg.isSelected).length;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -199,10 +203,10 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                                   padding: const EdgeInsets.all(8.0),
                                   child: LinearProgressIndicator(
                                     value: _calculateOverallProgress(),
-                                    backgroundColor: AppColors.mediumGrey.withOpacity(.1),
+                                    backgroundColor:
+                                        AppColors.mediumGrey.withOpacity(.1),
                                     color: AppColors.primaryColor,
                                     borderRadius: BorderRadius.circular(8),
-
                                   ),
                                 ),
                               ),
@@ -213,6 +217,20 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                                   context,
                                   color: AppColors.redColor,
                                 ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Selected: ${_calculateTotalSelected()} / Total: ${_detailsList.length}',
+                                style: AppTextStyles
+                                    .nunitoFont16Bold(context),
                               ),
                             ],
                           ),
@@ -338,42 +356,43 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                                           ),
                                         ),
                                       ),
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxHeight: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              .2,
-                                        ),
-                                        child: ListView.builder(
-                                          itemCount: item.packages.length,
-                                          itemBuilder: (context, index) {
-                                            final packageName =
-                                                item.selectedPackages[index];
-                                            return CustomCheckBoxTile(
-                                              paddingInsets: EdgeInsets.zero,
-                                              value: packageName.isSelected,
-                                              title: packageName.name,
-                                              onChanged: (value) {
-                                                if (value == null) return;
-                                                item.selectedPackages[index]
-                                                    .isSelected = value;
-                                                context
-                                                    .read<TopicDetailsCubit>()
-                                                    .updateDetailsItemForTopic(
-                                                      topicId:
-                                                          widget.topic.topicId,
-                                                      checklistId:
-                                                          widget.checklistId,
-                                                      updatedDetails: item,
-                                                    );
+                                      if (item.packages.isNotEmpty)
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxHeight: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                .1,
+                                          ),
+                                          child: ListView.builder(
+                                            itemCount: item.packages.length,
+                                            itemBuilder: (context, index) {
+                                              final packageName =
+                                                  item.selectedPackages[index];
+                                              return CustomCheckBoxTile(
+                                                paddingInsets: EdgeInsets.zero,
+                                                value: packageName.isSelected,
+                                                title: packageName.name,
+                                                onChanged: (value) {
+                                                  if (value == null) return;
+                                                  item.selectedPackages[index]
+                                                      .isSelected = value;
+                                                  context
+                                                      .read<TopicDetailsCubit>()
+                                                      .updateDetailsItemForTopic(
+                                                        topicId: widget
+                                                            .topic.topicId,
+                                                        checklistId:
+                                                            widget.checklistId,
+                                                        updatedDetails: item,
+                                                      );
 
-                                                setState(() {});
-                                              },
-                                            );
-                                          },
+                                                  setState(() {});
+                                                },
+                                              );
+                                            },
+                                          ),
                                         ),
-                                      ),
                                     ],
                                   ),
                                 ),

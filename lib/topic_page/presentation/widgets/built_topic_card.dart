@@ -1,3 +1,4 @@
+import 'package:checklist_app/core/themes/app_colors.dart';
 import 'package:checklist_app/core/themes/app_text_styles.dart';
 import 'package:checklist_app/core/utils/dimensions.dart';
 import 'package:checklist_app/topic_details_page.dart/presentation/pages/topic_details_page.dart';
@@ -22,7 +23,7 @@ class BuiltTopicCard extends StatelessWidget {
     return ListTile(
       title: Text(
         "💡${topic.name} ",
-        style: AppTextStyles.nunitoFont20Medium(context),
+        style: AppTextStyles.nunitoFont20Medium(context,color: AppColors.blackColor),
       ),
       subtitle: Padding(
         padding: const EdgeInsets.symmetric(horizontal: PaddingDimensions.large),
