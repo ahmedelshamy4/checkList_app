@@ -28,6 +28,10 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
         'description': detailsItem.description,
         'subDescription': detailsItem.subDescription,
         'packageNames': detailsItem.packageNames,
+        'selectedPackages': detailsItem.selectedPackages.isEmpty
+            ? List<bool>.filled(detailsItem.packageNames.length, false)
+            : detailsItem.selectedPackages,
+        'progress': detailsItem.progress ?? 0.0,
       });
       print("Topic details item added successfully");
     } catch (e) {
@@ -54,13 +58,19 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
                 description: doc['description'],
                 subDescription: doc['subDescription'],
                 packageNames: List<String>.from(doc['packageNames']),
+        selectedPackages: doc.data().containsKey('selectedPackages')
+            ? List<bool>.from(doc['selectedPackages'])
+            : List<bool>.filled(
+            doc['packageNames'].length, false), // Default to false if missing
+        progress: doc.data().containsKey('progress')
+            ? doc['progress']
+            : 0.0, // Default to 0.0
               ))
           .toList();
     } catch (e) {
       throw Exception('Error : $e');
     }
   }
-
 
   @override
   Future<void> deleteTopicDetailsItem(
@@ -96,6 +106,8 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
         'description': updatedDetails.description,
         'subDescription': updatedDetails.subDescription,
         'packageNames': updatedDetails.packageNames,
+        'selectedPackages': updatedDetails.selectedPackages,
+        'progress': updatedDetails.progress,
       });
       print("Topic details updated successfully");
     } catch (e) {

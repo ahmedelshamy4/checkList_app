@@ -1,19 +1,25 @@
+import 'package:checklist_app/core/themes/app_text_styles.dart';
 import 'package:checklist_app/topic_details_page.dart/domain/entities/topic_details_entity.dart';
-import 'package:checklist_app/topic_details_page.dart/presentation/manager/topic_details_cubit.dart';
-import 'package:checklist_app/topic_details_page.dart/presentation/widgets/package_check_box_list.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddOrEditTopicDialog extends StatefulWidget {
   final TopicDetailsEntity? item;
   final String topicId;
   final String checklistId;
+  final void Function(
+          String topicId, String checklistId, TopicDetailsEntity details)
+      onAddDetailsItemForTopicCallback;
+  final void Function(
+          String topicId, String checklistId, TopicDetailsEntity newDetails)
+      onUpdateDetailsItemForTopicCallback;
 
   const AddOrEditTopicDialog({
     super.key,
     this.item,
     required this.topicId,
     required this.checklistId,
+    required this.onAddDetailsItemForTopicCallback,
+    required this.onUpdateDetailsItemForTopicCallback,
   });
 
   @override
@@ -24,8 +30,8 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   late TextEditingController _subDescriptionController;
+  late TextEditingController _packageNameController;
   List<String> _packageNames = [];
-  List<bool> _selectedPackages = [];
 
   @override
   void initState() {
@@ -35,39 +41,86 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
         TextEditingController(text: widget.item?.description ?? '');
     _subDescriptionController =
         TextEditingController(text: widget.item?.subDescription ?? '');
-    _packageNames = widget.item?.packageNames ?? [];
-    _selectedPackages = List.generate(_packageNames.length, (index) => false);
+    _packageNameController = TextEditingController();
+    _packageNames = List.from(widget.item?.packageNames ?? []);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _subDescriptionController.dispose();
+    _packageNameController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.item == null ? 'Add New Item' : 'Edit Item'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _nameController,
-            decoration: const InputDecoration(hintText: 'Item Name'),
-          ),
-          TextField(
-            controller: _descriptionController,
-            decoration: const InputDecoration(hintText: 'Description'),
-          ),
-          TextField(
-            controller: _subDescriptionController,
-            decoration: const InputDecoration(hintText: 'Sub Description'),
-          ),
-          PackageCheckboxList(
-            packageNames: _packageNames,
-            selectedPackages: _selectedPackages,
-            onPackageChecked: (index, isChecked) {
-              setState(() {
-                _selectedPackages[index] = isChecked;
-              });
-            },
-          ),
-        ],
+      title: Text(
+        widget.item == null ? 'Add New Item' : 'Edit Item',
+        style: AppTextStyles.nunitoFont20Medium(context),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(hintText: 'Item Name'),
+            ),
+            TextField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(hintText: 'Description'),
+            ),
+            TextField(
+              controller: _subDescriptionController,
+              decoration: const InputDecoration(hintText: 'Sub Description'),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _packageNameController,
+                    decoration: const InputDecoration(hintText: 'Package Name'),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    if (_packageNameController.text.isNotEmpty) {
+                      setState(() {
+                        _packageNames.add(_packageNameController.text);
+                        _packageNameController.clear();
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _packageNames
+                  .map(
+                    (e) => Row(
+                      children: [
+                        Expanded(child: Text(e)),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              _packageNames.removeAt(_packageNames.indexOf(e));
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList(),
+            )
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -78,43 +131,30 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
               subDescription: _subDescriptionController.text,
               id: widget.item?.id ?? '',
               packageNames: _packageNames,
+              selectedPackages: List.filled(_packageNames.length, false),
+              progress: widget.item?.progress ?? 0.0,
             );
             if (widget.item == null) {
-              context.read<TopicDetailsCubit>().addDetailsItemForTopic(
-                    topicId: widget.topicId,
-                    checklistId: widget.checklistId,
-                    details: newItem,
-                  );
+              widget.onAddDetailsItemForTopicCallback(
+                widget.topicId,
+                widget.checklistId,
+                newItem,
+              );
             } else {
-              context.read<TopicDetailsCubit>().updateDetailsItemForTopic(
-                    topicId: widget.topicId,
-                    checklistId: widget.checklistId,
-                    updatedDetails: newItem,
-                  );
+              widget.onUpdateDetailsItemForTopicCallback(
+                widget.topicId,
+                widget.checklistId,
+                newItem,
+              );
             }
             Navigator.of(context).pop();
           },
-          child: Text(widget.item == null ? 'Add' : 'Update'),
+          child: Text(
+            widget.item == null ? 'Add' : 'Update',
+            style: AppTextStyles.nunitoFont20Medium(context),
+          ),
         ),
       ],
-    );
-  }
-}
-
-class ProgressBar extends StatelessWidget {
-  final List<bool> selectedPackages;
-
-  const ProgressBar({super.key, required this.selectedPackages});
-
-  @override
-  Widget build(BuildContext context) {
-    int checkedCount = selectedPackages.where((isChecked) => isChecked).length;
-    double progress =
-        selectedPackages.isEmpty ? 0 : checkedCount / selectedPackages.length;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: LinearProgressIndicator(value: progress),
     );
   }
 }

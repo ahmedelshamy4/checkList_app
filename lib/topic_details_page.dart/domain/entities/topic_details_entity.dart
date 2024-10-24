@@ -6,17 +6,17 @@ class TopicDetailsEntity extends Equatable {
   final String description;
   final String? subDescription;
   final List<String> packageNames;
-  // final List<bool> selectedPackages;
-  // final double progress;
+   List<bool> selectedPackages;
+   double progress;
 
-  const TopicDetailsEntity({
+   TopicDetailsEntity({
     required this.id,
     required this.title,
     required this.description,
     this.subDescription,
     required this.packageNames,
-    // required this.selectedPackages, // Initialize selected packages
-    // required this.progress,
+    required this.selectedPackages,
+    required this.progress,
   });
 
   TopicDetailsEntity copyWith({
@@ -34,8 +34,8 @@ class TopicDetailsEntity extends Equatable {
       description: description ?? this.description,
       subDescription: subDescription ?? this.subDescription,
       packageNames: packageNames ?? this.packageNames,
-      // selectedPackages: selectedPackages ?? this.selectedPackages,
-      // progress: progress ?? this.progress,
+      selectedPackages: selectedPackages ?? this.selectedPackages,
+      progress: progress ?? this.progress,
     );
   }
 
@@ -45,7 +45,7 @@ class TopicDetailsEntity extends Equatable {
         title,
         description,
         packageNames,
-        // selectedPackages,
-        // progress,
+        selectedPackages,
+        progress,
       ];
 }
