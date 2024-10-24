@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 
 class TopicDetailsState extends Equatable {
   final Async<void> updateDetailsTopicState;
+  final Async<void> saveCheckedListState;
   final Async<void> addDetailsTopicState;
   final Async<void> removeDetailsTopicState;
   final Async<List<TopicDetailsEntity>> getDetailsTopicsState;
@@ -11,23 +12,26 @@ class TopicDetailsState extends Equatable {
 
   const TopicDetailsState(
     this.updateDetailsTopicState,
+    this.saveCheckedListState,
     this.addDetailsTopicState,
     this.removeDetailsTopicState,
     this.getDetailsTopicsState,
     this.errorMessage,
   );
 
-   const TopicDetailsState.initial()
+  const TopicDetailsState.initial()
       : this(
           const Async.initial(),
           const Async.initial(),
           const Async.initial(),
           const Async.initial(),
-         null,
+          const Async.initial(),
+          null,
         );
 
   TopicDetailsState reduce({
     Async<void>? updateDetailsTopicState,
+    Async<void>? saveCheckedListState,
     Async<void>? addDetailsTopicState,
     Async<void>? removeDetailsTopicState,
     Async<List<TopicDetailsEntity>>? getDetailsTopicsState,
@@ -35,6 +39,7 @@ class TopicDetailsState extends Equatable {
   }) {
     return TopicDetailsState(
       updateDetailsTopicState ?? this.updateDetailsTopicState,
+      saveCheckedListState ?? this.saveCheckedListState,
       addDetailsTopicState ?? this.addDetailsTopicState,
       removeDetailsTopicState ?? this.removeDetailsTopicState,
       getDetailsTopicsState ?? this.getDetailsTopicsState,
@@ -45,6 +50,7 @@ class TopicDetailsState extends Equatable {
   @override
   List<Object?> get props => [
         updateDetailsTopicState,
+        saveCheckedListState,
         addDetailsTopicState,
         removeDetailsTopicState,
         getDetailsTopicsState,

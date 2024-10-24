@@ -124,32 +124,30 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
     if (_detailsList.isNotEmpty) {
       for (var detail in _detailsList) {
         if (detail.selectedPackages.isEmpty) {
+          print('_initializeState${detail.packages.length}');
           // Initialize selectedPackages with false if not already set
-          detail.selectedPackages =
-              List.generate(detail.packageNames.length, (_) => false);
+          // detail.selectedPackages =
+          //     List.generate(detail.packages.length, (_) => false);
         }
-        _updateProgress(detail);
       }
     }
   }
 
-  void _updateProgress(TopicDetailsEntity entity) {
-    final selectedCount =
-        entity.selectedPackages.where((isSelected) => isSelected).length;
-    final totalPackages = entity.selectedPackages.length;
-    setState(() {
-      entity.progress =
-          totalPackages > 0 ? (selectedCount / totalPackages) : 0.0;
-    });
-  }
+  // void _updateProgress(TopicDetailsEntity entity) {
+  //   final selectedCount =
+  //       entity.selectedPackages.where((isSelected) => isSelected).length;
+  //   final totalPackages = entity.selectedPackages.length;
+  //   setState(() {
+  //     entity.progress =
+  //         totalPackages > 0 ? (selectedCount / totalPackages) : 0.0;
+  //   });
+  // }
 
-  void _saveToFirestore(TopicDetailsEntity updatedItem) async {
-    context.read<TopicDetailsCubit>().updateDetailsItemForTopic(
-          topicId: widget.topic.topicId,
-          checklistId: widget.checklistId,
-          updatedDetails: updatedItem,
-        );
-  }
+  // void _updateProgress(TopicDetailsEntity item) {
+  //   int total = item.packages.length;
+  //   int selected = item.selectedPackages.where((selected) => selected).length;
+  //   item.progress = selected / total;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +159,7 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
               _detailsList = state.getDetailsTopicsState.data ?? [];
               _initializeState();
             } else if (state.getDetailsTopicsState.isFailure) {
+              print('=errorMessage=:: ${state.getDetailsTopicsState.failure?.errorMessage.toString()}');
               ToastService().showToast(context, "Failed to fetch topics");
             }
             if (state.addDetailsTopicState.isSuccess) {
@@ -191,6 +190,25 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                   ? Column(
                       children: [
                         const SizedBox(height: 10),
+                        // Row for Total Count and Selected Checked
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Total: ${_detailsList.length}',
+                                style:
+                                    AppTextStyles.nunitoFont20Medium(context),
+                              ),
+                              // Text(
+                              //   'Selected: ${_detailsList.where((item) => item.isSelected).length}',
+                              //   style:
+                              //       AppTextStyles.nunitoFont20Medium(context),
+                              // ),
+                            ],
+                          ),
+                        ),
                         Expanded(
                           child: ListView.separated(
                             separatorBuilder: (context, index) =>
@@ -274,15 +292,14 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                                     SizedBox(
                                       height: 200,
                                       child: ListView.builder(
-                                        itemCount: item.packageNames.length,
+                                        itemCount: item.packages.length,
                                         itemBuilder: (context, index) {
-                                          final packageName =
-                                              item.packageNames[index];
-
+                                          final package = item.packages[index];
+                                          final packageName = item.selectedPackages[index];
                                           return Card(
                                             child: ListTile(
                                               title: Text(
-                                                packageName,
+                                                package,
                                                 style: AppTextStyles
                                                     .nunitoFont16Regular(
                                                         context,
@@ -290,13 +307,16 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                                                             .blackColor),
                                               ),
                                               trailing: Checkbox(
-                                                value: item
-                                                    .selectedPackages[index],
+                                                value: item.selectedPackages[index].isSelected,
                                                 onChanged: (value) {
-                                                  item.selectedPackages[index] =
-                                                      value ?? false;
-                                                  _updateProgress(item);
-                                                  _saveToFirestore(item);
+                                                  if (value == null) return;
+                                                  item.selectedPackages[index].isSelected = value;
+                                                  context.read<TopicDetailsCubit>().updateDetailsItemForTopic(
+                                                    topicId: widget.topic.topicId,
+                                                    checklistId: widget.checklistId,
+                                                    updatedDetails: item,
+                                                  );
+
                                                   setState(() {});
                                                 },
                                               ),

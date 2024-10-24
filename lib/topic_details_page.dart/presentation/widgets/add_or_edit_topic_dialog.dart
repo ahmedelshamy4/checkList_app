@@ -42,7 +42,7 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
     _subDescriptionController =
         TextEditingController(text: widget.item?.subDescription ?? '');
     _packageNameController = TextEditingController();
-    _packageNames = List.from(widget.item?.packageNames ?? []);
+    _packageNames = List.from(widget.item?.packages ?? []);
   }
 
   @override
@@ -125,14 +125,27 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
       actions: [
         TextButton(
           onPressed: () {
+            final List<PackageModel> updatedSelectedPackages =
+                _packageNames.map((packageName) {
+              final existingPackage = widget.item?.selectedPackages.firstWhere(
+                (package) => package.name == packageName,
+                orElse: () =>
+                    PackageModel(name: packageName, isSelected: false),
+              );
+              if (existingPackage == null) {
+                return PackageModel(name: packageName, isSelected: false);
+              }
+              return existingPackage;
+            }).toList();
+
             final newItem = TopicDetailsEntity(
               title: _nameController.text,
               description: _descriptionController.text,
               subDescription: _subDescriptionController.text,
               id: widget.item?.id ?? '',
-              packageNames: _packageNames,
-              selectedPackages: List.filled(_packageNames.length, false),
               progress: widget.item?.progress ?? 0.0,
+              packages: _packageNames,
+              selectedPackages: updatedSelectedPackages,
             );
             if (widget.item == null) {
               widget.onAddDetailsItemForTopicCallback(

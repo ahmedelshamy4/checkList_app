@@ -15,6 +15,6 @@ class UpdateTopicUseCase {
     TopicDetailsEntity updatedDetails,
   ) async {
     await _repository.updateTopicDetails(
-        checklistId, topicId, detailsId, updatedDetails);
+        checklistId, topicId, detailsId, updatedDetails,);
   }
 }

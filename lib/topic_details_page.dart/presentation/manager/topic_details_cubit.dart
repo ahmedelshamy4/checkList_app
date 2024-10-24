@@ -38,9 +38,7 @@ class TopicDetailsCubit extends Cubit<TopicDetailsState> {
       emit(
           state.reduce(addDetailsTopicState: const Async.successWithoutData()));
       await getAllDetailsItemsForTopic(
-        checklistId: checklistId,
-        topicId: topicId,
-      );
+          checklistId: checklistId, topicId: topicId);
     } catch (e) {
       emit(state.reduce(
           addDetailsTopicState: Async.failure(Failure(e.toString()))));
@@ -53,10 +51,10 @@ class TopicDetailsCubit extends Cubit<TopicDetailsState> {
   }) async {
     emit(state.reduce(getDetailsTopicsState: const Async.loading()));
     try {
-      List<TopicDetailsEntity> details =
+      final result =
           await _getAllDetailsTopicUseCase.execute(checklistId, topicId);
-      emit(state.reduce(getDetailsTopicsState: Async.success(details)));
-      print(' Loaded ${details.length} details');
+      emit(state.reduce(getDetailsTopicsState: Async.success(result)));
+      print(' Loaded ${result}');
     } catch (e) {
       emit(state.reduce(
           getDetailsTopicsState: Async.failure(Failure(e.toString()))));
@@ -83,17 +81,13 @@ class TopicDetailsCubit extends Cubit<TopicDetailsState> {
 
   Future<void> updateDetailsItemForTopic({
     required String checklistId,
-    required String  topicId,
+    required String topicId,
     required TopicDetailsEntity updatedDetails,
   }) async {
     emit(state.reduce(updateDetailsTopicState: const Async.loading()));
     try {
       await _updateTopicUseCase.execute(
-        checklistId,
-       topicId,
-        updatedDetails.id,
-        updatedDetails,
-      );
+          checklistId, topicId, updatedDetails.id, updatedDetails);
       emit(state.reduce(
           updateDetailsTopicState: const Async.successWithoutData()));
       await getAllDetailsItemsForTopic(
@@ -103,4 +97,5 @@ class TopicDetailsCubit extends Cubit<TopicDetailsState> {
           updateDetailsTopicState: Async.failure(Failure(e.toString()))));
     }
   }
+
 }

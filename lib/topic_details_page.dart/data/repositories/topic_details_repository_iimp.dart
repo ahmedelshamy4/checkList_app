@@ -27,11 +27,18 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
         'title': detailsItem.title,
         'description': detailsItem.description,
         'subDescription': detailsItem.subDescription,
-        'packageNames': detailsItem.packageNames,
+        'packageNames': detailsItem.packages,
         'selectedPackages': detailsItem.selectedPackages.isEmpty
-            ? List<bool>.filled(detailsItem.packageNames.length, false)
-            : detailsItem.selectedPackages,
-        'progress': detailsItem.progress ?? 0.0,
+            ? List<bool>.filled(detailsItem.packages.length, false)
+            : detailsItem.selectedPackages
+                .map(
+                  (e) => {
+                    'name': e.name,
+                    'isSelected': e.isSelected,
+                  },
+                )
+                .toList(),
+        'progress': detailsItem.progress,
       });
       print("Topic details item added successfully");
     } catch (e) {
@@ -51,22 +58,44 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
           .collection(AppConstants.topicDetailsCollection)
           .get();
 
-      return querySnapshot.docs
-          .map((doc) => TopicDetailsEntity(
-                id: doc.id,
-                title: doc['title'],
-                description: doc['description'],
-                subDescription: doc['subDescription'],
-                packageNames: List<String>.from(doc['packageNames']),
-        selectedPackages: doc.data().containsKey('selectedPackages')
-            ? List<bool>.from(doc['selectedPackages'])
-            : List<bool>.filled(
-            doc['packageNames'].length, false), // Default to false if missing
-        progress: doc.data().containsKey('progress')
-            ? doc['progress']
-            : 0.0, // Default to 0.0
-              ))
-          .toList();
+      return querySnapshot.docs.map((doc) {
+        List<PackageModel> selectedPackages = [];
+
+        // Check if 'selectedPackages' exists and is a List
+        if (doc.data().containsKey('selectedPackages') &&
+            doc['selectedPackages'] is List) {
+          final rawSelectedPackages = doc['selectedPackages'] as List<dynamic>;
+
+          // Convert dynamic list to List<PackageModel>
+          selectedPackages = rawSelectedPackages.map((dynamic pkg) {
+            if (pkg is Map<String, dynamic>) {
+              // Safely access 'name' and 'isSelected'
+              final name = pkg['name'] ?? '';
+              final isSelected = pkg['isSelected'] ?? false;
+              return PackageModel(name: name, isSelected: isSelected);
+            } else {
+              // Handle unexpected data types
+              print('Unexpected package format: $pkg');
+              return PackageModel(
+                  name: '',
+                  isSelected: false); // Fallback in case of unexpected format
+            }
+          }).toList();
+        } else {
+          print("No selected packages found or wrong format.");
+        }
+
+        return TopicDetailsEntity(
+          id: doc.id,
+          title: doc['title'] ?? '',
+          description: doc['description'] ?? '',
+          subDescription: doc['subDescription'] ?? '',
+          packages: List<String>.from(doc['packageNames'] ?? []),
+          // Ensure this is a List<String>
+          selectedPackages: selectedPackages,
+          progress: doc.data().containsKey('progress') ? doc['progress'] : 0.0,
+        );
+      }).toList();
     } catch (e) {
       throw Exception('Error : $e');
     }
@@ -91,8 +120,12 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
   }
 
   @override
-  Future<void> updateTopicDetails(String checklistId, String topicId,
-      String detailsId, TopicDetailsEntity updatedDetails) async {
+  Future<void> updateTopicDetails(
+    String checklistId,
+    String topicId,
+    String detailsId,
+    TopicDetailsEntity updatedDetails,
+  ) async {
     try {
       await firestore
           .collection(AppConstants.checklistCollection)
@@ -105,13 +138,19 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
         'title': updatedDetails.title,
         'description': updatedDetails.description,
         'subDescription': updatedDetails.subDescription,
-        'packageNames': updatedDetails.packageNames,
-        'selectedPackages': updatedDetails.selectedPackages,
+        'packageNames': updatedDetails.packages,
+        'selectedPackages': updatedDetails.selectedPackages
+            .map((pkg) => {
+                  'name': pkg.name,
+                  'isSelected': pkg.isSelected,
+                })
+            .toList(),
         'progress': updatedDetails.progress,
       });
-      print("Topic details updated successfully");
+      print("Topic item changed successfully");
     } catch (e) {
       print("Error updating topic details: $e");
     }
   }
+
 }
