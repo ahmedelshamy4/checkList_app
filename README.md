@@ -1,17 +1,11 @@
 # checklist_app
+This is a Flutter checklist application that allows users to save and manage their tasks
 
-A new Flutter project.
+## Live Demo
 
-## Getting Started
+You can access the live version of the app [here](http://localhost:51794/).
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab](http://localhost:51794/))
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# checkList_app
+- Add, edit, and delete checklist items.
+- Data is saved using Firebase.
