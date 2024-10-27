@@ -8,7 +8,7 @@ class AddCheckListTopicUseCase {
 
   AddCheckListTopicUseCase(this._repository);
 
-  Future<void> execute(String checklistName,TopicEntity topic) async {
-    await _repository.addTopic(checklistName,topic);
+  Future<void> execute(String checklistId,TopicEntity topic) async {
+    await _repository.addTopic(checklistId,topic);
   }
 }

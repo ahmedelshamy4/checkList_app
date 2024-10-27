@@ -10,6 +10,7 @@ class TopicEntity extends Equatable {
     required this.name,
     required this.description,
   });
+
   TopicEntity copyWith({
     String? topicId,
     String? name,

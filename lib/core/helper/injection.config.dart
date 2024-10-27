@@ -69,8 +69,8 @@ extension GetItInjectableX on _i174.GetIt {
       environmentFilter,
     );
     final injectableModule = _$InjectableModule();
-    gh.factory<_i712.TopicDetailsCubit>(() => _i712.TopicDetailsCubit());
     gh.factory<_i987.ChecklistCubit>(() => _i987.ChecklistCubit());
+    gh.factory<_i712.TopicDetailsCubit>(() => _i712.TopicDetailsCubit());
     gh.factory<_i300.TopicsCubit>(() => _i300.TopicsCubit());
     gh.lazySingleton<_i974.FirebaseFirestore>(() => injectableModule.firestore);
     gh.factory<_i554.TopicDetailsRepository>(

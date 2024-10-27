@@ -54,6 +54,7 @@ class _BuildReorderableCheckListItemState
   Widget build(BuildContext context) {
     return ReorderableListView.builder(
       onReorder: _onReorder,
+      shrinkWrap: true,
       itemCount: widget.checklistItems.length,
       itemBuilder: (context, index) {
         final checklistItem = widget.checklistItems[index];
