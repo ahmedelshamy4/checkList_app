@@ -102,7 +102,6 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody> {
           checklistName: checklistName,
           onUpdateTopic: (checklistName, topic) {
             context.read<TopicsCubit>().updateTopic(
-                  checklistName: checklistName,
                   checklistItemId: widget.checklistItem.id,
                   topic: topic,
                 );
@@ -199,6 +198,7 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody> {
                         itemBuilder: (context, index) {
                           final topic = _topics[index];
                           return BuiltTopicCard(
+                            key: ValueKey(topic.topicId),
                             topic: topic,
                             onDelete: () async {
                               bool confirmDelete =

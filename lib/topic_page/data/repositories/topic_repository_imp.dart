@@ -68,11 +68,13 @@ class CheckListTopicRepositoryImp implements TopicRepository {
 
   @override
   Future<void> updateTopic(
-      String checklistName, TopicEntity updatedTopic) async {
+    String checklistItemId,
+    TopicEntity updatedTopic,
+  ) async {
     try {
       await firestore
           .collection(AppConstants.checklistCollection)
-          .doc(checklistName)
+          .doc(checklistItemId)
           .collection(AppConstants.topicsCollection)
           .doc(updatedTopic.topicId)
           .update({
@@ -84,4 +86,25 @@ class CheckListTopicRepositoryImp implements TopicRepository {
       print('Error updating topic: $e');
     }
   }
+
+// @override
+// Future<void> saveTopicOrder(List<TopicEntity> topicsSaved) async {
+//   try {
+//     for (int index = 0; index < topicsSaved.length; index++) {
+//       final item = topicsSaved[index];
+//       final updatedItem = item.copyWith(order: index);
+//       await firestore
+//           .collection(AppConstants.checklistCollection)
+//           .doc(updatedItem.topicId)
+//           .update({
+//         'name': updatedItem.name,
+//         'description': updatedItem.description,
+//         'order': updatedItem.order,
+//       });
+//     }
+//     print(" order successfully updated");
+//   } catch (e) {
+//     print("Error saving checklist order: $e");
+//   }
+// }
 }

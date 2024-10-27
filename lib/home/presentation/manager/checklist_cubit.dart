@@ -46,7 +46,7 @@ class ChecklistCubit extends Cubit<ChecklistState> {
   Future<void> reorderChecklist(int oldIndex, int newIndex) async {
     try {
       if (state.getChecklistItemsState.isSuccess) {
-        final currentItems = state.getChecklistItemsState.data;
+          final currentItems = state.getChecklistItemsState.data;
         List<ChecklistItem> updatedChecklist = List.from(currentItems ?? []);
         final movedItem = updatedChecklist.removeAt(oldIndex);
         updatedChecklist.insert(newIndex, movedItem);

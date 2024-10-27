@@ -5,7 +5,7 @@ class ChecklistItem extends Equatable{
   final String name;
   final int order;
 
-  ChecklistItem({required this.id, required this.name, required this.order});
+  const ChecklistItem({required this.id, required this.name, required this.order});
 
   // Convert ChecklistItem to Firestore-friendly map
   Map<String, dynamic> toFirestore() {

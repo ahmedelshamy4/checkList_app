@@ -27,14 +27,26 @@ class MainChecklistPage extends StatelessWidget {
                 color: AppColors.blackColor),
           ),
         ),
-        body: Column(
-          children: [
-            const Gap(PaddingDimensions.large),
-            Text("❇️ Planning and Research ❇️",
-                style: AppTextStyles.playfairFont24Bold(context)),
-            TipsCarouselWidget(),
-            const Expanded(child: _ChecklistBody()),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              const Gap(PaddingDimensions.large),
+              Text("❇️ Planning and Research ❇️",
+                  style: AppTextStyles.playfairFont24Bold(context)),
+              // Container(
+              //   width: MediaQuery.of(context).size.width * 0.9,
+              //   height: MediaQuery.of(context).size.width * 0.25,
+              //   decoration: BoxDecoration(
+              //       image: DecorationImage(
+              //     image: const AssetImage(
+              //         "assets/images/mobile_engineering_image.png"),
+              //     fit: BoxFit.cover,
+              //   )),
+              // ),
+              TipsCarouselWidget(),
+              const _ChecklistBody(),
+            ],
+          ),
         ),
       ),
     );
@@ -86,36 +98,34 @@ class _ChecklistBodyState extends State<_ChecklistBody> {
                   onPressed: _onSuffixIconPressed,
                 ),
               ),
-              Expanded(
-                child: BlocBuilder<ChecklistCubit, ChecklistState>(
-                  builder: (context, state) {
-                    if (state.getChecklistItemsState.isFailure) {
-                      return Center(
-                        child: Text(
-                          state.getChecklistItemsState.failure?.errorMessage ??
-                              '',
-                          style: AppTextStyles.playfairFont24Bold(context),
-                        ),
-                      );
-                    } else if (state.getChecklistItemsState.isSuccess) {
-                      final checklist = state.getChecklistItemsState.data;
-                      if (checklist != null) {
-                        return checklist.isNotEmpty
-                            ? BuildReorderableCheckListItem(
-                                checklistItems: checklist)
-                            : Center(
-                                child: Text(
-                                  "No Checklist Items",
-                                  style:
-                                      AppTextStyles.playfairFont24Bold(context),
-                                ),
-                              );
-                      }
+              BlocBuilder<ChecklistCubit, ChecklistState>(
+                builder: (context, state) {
+                  if (state.getChecklistItemsState.isFailure) {
+                    return Center(
+                      child: Text(
+                        state.getChecklistItemsState.failure?.errorMessage ??
+                            '',
+                        style: AppTextStyles.playfairFont24Bold(context),
+                      ),
+                    );
+                  } else if (state.getChecklistItemsState.isSuccess) {
+                    final checklist = state.getChecklistItemsState.data;
+                    if (checklist != null) {
+                      return checklist.isNotEmpty
+                          ? BuildReorderableCheckListItem(
+                              checklistItems: checklist)
+                          : Center(
+                              child: Text(
+                                "No Checklist Items",
+                                style:
+                                    AppTextStyles.playfairFont24Bold(context),
+                              ),
+                            );
                     }
+                  }
 
-                    return const SizedBox.shrink();
-                  },
-                ),
+                  return const SizedBox.shrink();
+                },
               ),
             ],
           ),
