@@ -7,11 +7,9 @@ class AddOrEditTopicDialog extends StatefulWidget {
   final String topicId;
   final String checklistId;
   final void Function(
-          String topicId, String checklistId, TopicDetailsEntity details)
-      onAddDetailsItemForTopicCallback;
+      String topicId, String checklistId, TopicDetailsEntity details) onAddDetailsItemForTopicCallback;
   final void Function(
-          String topicId, String checklistId, TopicDetailsEntity newDetails)
-      onUpdateDetailsItemForTopicCallback;
+      String topicId, String checklistId, TopicDetailsEntity newDetails) onUpdateDetailsItemForTopicCallback;
 
   const AddOrEditTopicDialog({
     super.key,
@@ -32,15 +30,14 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
   late TextEditingController _subDescriptionController;
   late TextEditingController _packageNameController;
   List<String> _packageNames = [];
+  bool _isPackageError = false;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.item?.title ?? '');
-    _descriptionController =
-        TextEditingController(text: widget.item?.description ?? '');
-    _subDescriptionController =
-        TextEditingController(text: widget.item?.subDescription ?? '');
+    _descriptionController = TextEditingController(text: widget.item?.description ?? '');
+    _subDescriptionController = TextEditingController(text: widget.item?.subDescription ?? '');
     _packageNameController = TextEditingController();
     _packageNames = List.from(widget.item?.packages ?? []);
   }
@@ -92,62 +89,62 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
                       setState(() {
                         _packageNames.add(_packageNameController.text);
                         _packageNameController.clear();
+                        _isPackageError = false;
                       });
                     }
                   },
                 ),
               ],
             ),
+            if (_isPackageError)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  'Please add at least one package.',
+                  style: AppTextStyles.nunitoFont16Regular(context,color: Colors.red),
+                ),
+              ),
             const SizedBox(height: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: _packageNames
                   .map(
                     (e) => Row(
-                      children: [
-                        Expanded(child: Text(e)),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            setState(() {
-                              _packageNames.removeAt(_packageNames.indexOf(e));
-                            });
-                          },
-                        ),
-                      ],
+                  children: [
+                    Expanded(child: Text(e)),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          _packageNames.remove(e);
+                        });
+                      },
                     ),
-                  )
+                  ],
+                ),
+              )
                   .toList(),
-            )
+            ),
           ],
         ),
       ),
       actions: [
         TextButton(
           onPressed: () {
-            final List<PackageModel> updatedSelectedPackages =
-                _packageNames.map((packageName) {
-              final existingPackage = widget.item?.selectedPackages.firstWhere(
-                (package) => package.name == packageName,
-                orElse: () =>
-                    PackageModel(name: packageName, isSelected: false),
-              );
-              if (existingPackage == null) {
-                return PackageModel(name: packageName, isSelected: false);
-              }
-              return existingPackage;
-            }).toList();
-            // if (updatedSelectedPackages.every((pkg) => !pkg.isSelected)) {
-            //
-            //   for (var pkg in updatedSelectedPackages) {
-            //     pkg.isSelected = false;
-            //   }
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     SnackBar(content: Text('Please select at least one package.',style: AppTextStyles.playfairFont32Bold(context),)),
-            //   );
-            //   return;
-            // }
+            if (_packageNames.isEmpty) {
+              setState(() {
+                _isPackageError = true;
+              });
+              return;
+            }
 
+            final updatedSelectedPackages = _packageNames.map((packageName) {
+              final existingPackage = widget.item?.selectedPackages.firstWhere(
+                    (package) => package.name == packageName,
+                orElse: () => PackageModel(name: packageName, isSelected: false),
+              );
+              return existingPackage ?? PackageModel(name: packageName, isSelected: false);
+            }).toList();
 
             final newItem = TopicDetailsEntity(
               title: _nameController.text,
@@ -158,6 +155,7 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
               packages: _packageNames,
               selectedPackages: updatedSelectedPackages,
             );
+
             if (widget.item == null) {
               widget.onAddDetailsItemForTopicCallback(
                 widget.topicId,
@@ -182,3 +180,4 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
     );
   }
 }
+
