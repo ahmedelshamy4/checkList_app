@@ -1,7 +1,6 @@
 import 'package:checklist_app/core/themes/app_text_styles.dart';
 import 'package:checklist_app/topic_details_page.dart/domain/entities/topic_details_entity.dart';
 import 'package:flutter/material.dart';
-
 class AddOrEditTopicDialog extends StatefulWidget {
   final TopicDetailsEntity? item;
   final String topicId;
