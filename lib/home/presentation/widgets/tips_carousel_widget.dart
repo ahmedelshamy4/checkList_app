@@ -32,7 +32,7 @@ class TipsCarouselWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: PaddingDimensions.large),
       child: CarouselSlider(
         options: CarouselOptions(
-          height: 100,
+          height: 130,
           autoPlay: true,
           enlargeCenterPage: true,
           aspectRatio: 16 / 9,
