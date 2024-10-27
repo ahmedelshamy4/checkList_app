@@ -1,32 +1,25 @@
-import 'dart:html' as html;
-import 'dart:convert'; // For jsonEncode and jsonDecode
+import 'dart:convert';
+
+import 'package:checklist_app/core/helper/app_constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(ChecklistApp());
-}
 
-class ChecklistApp extends StatelessWidget {
+
+
+class ChecklistApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Checklist App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ChecklistPage(),
-    );
-  }
+  _ChecklistAppState createState() => _ChecklistAppState();
 }
 
-class ChecklistPage extends StatefulWidget {
-  @override
-  _ChecklistPageState createState() => _ChecklistPageState();
-}
-
-class _ChecklistPageState extends State<ChecklistPage> {
-  final TextEditingController _textController = TextEditingController();
-  List<Map<String, dynamic>> _checklist = [];
+class _ChecklistAppState extends State<ChecklistApp> {
+  List<String> _checklist = [];
+  final TextEditingController _controller = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -34,98 +27,81 @@ class _ChecklistPageState extends State<ChecklistPage> {
     _loadChecklist();
   }
 
-  // Load checklist from localStorage
-  void _loadChecklist() {
-    String? savedData = html.window.localStorage['checklist'];
-    if (savedData != null) {
-      setState(() {
-        _checklist = List<Map<String, dynamic>>.from(
-            jsonDecode(savedData) as List);
-      });
-    }
-  }
-
-  // Save checklist to localStorage
-  void _saveChecklist() {
-    String checklistToSave = jsonEncode(_checklist);
-    html.window.localStorage['checklist'] = checklistToSave;
-  }
-
-  // Add a new item to the checklist
-  void _addItem(String title) {
-    if (title.isNotEmpty) {
-      setState(() {
-        _checklist.add({'title': title, 'completed': false});
-        _saveChecklist();
-      });
-      _textController.clear();
-    }
-  }
-
-  // Toggle completion status of an item
-  void _toggleCompletion(int index) {
+  // Load checklist from Firestore
+  Future<void> _loadChecklist() async {
+    final snapshot = await _firestore.collection('checklist').get();
     setState(() {
-      _checklist[index]['completed'] = !_checklist[index]['completed'];
-      _saveChecklist();
+      _checklist = snapshot.docs.map((doc) => doc['item'] as String).toList();
     });
   }
 
-  // Remove an item from the checklist
-  void _removeItem(int index) {
+  // Add a new item to Firestore
+  Future<void> _addItem(String item) async {
+    setState(() {
+      _checklist.add(item);
+    });
+    await _firestore.collection('checklist').add({'item': item});
+  }
+
+  // Remove an item from Firestore
+  Future<void> _removeItem(int index) async {
+    final item = _checklist[index];
     setState(() {
       _checklist.removeAt(index);
-      _saveChecklist();
     });
+    final snapshot = await _firestore
+        .collection('checklist')
+        .where('item', isEqualTo: item)
+        .get();
+    await snapshot.docs.first.reference.delete();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Checklist'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _textController,
-              decoration: InputDecoration(
-                labelText: 'Enter new topic',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: () => _addItem(_textController.text),
+    return MaterialApp(
+      title: 'Checklist App',
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Checklist App'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  labelText: 'Enter item',
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      if (_controller.text.isNotEmpty) {
+                        _addItem(_controller.text);
+                        _controller.clear();
+                      }
+                    },
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _checklist.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      _checklist[index]['title'],
-                      style: TextStyle(
-                        decoration: _checklist[index]['completed']
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _checklist.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(_checklist[index]),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () => _removeItem(index),
                       ),
-                    ),
-                    leading: Checkbox(
-                      value: _checklist[index]['completed'],
-                      onChanged: (value) => _toggleCompletion(index),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () => _removeItem(index),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
