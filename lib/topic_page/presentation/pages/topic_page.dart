@@ -185,7 +185,7 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody> {
                 appBar: AppBar(
                   title: Text(
                     widget.checklistItem.name,
-                    style: AppTextStyles.nunitoFont20Medium(context),
+                    style: AppTextStyles.nunitoFont20Medium(context,color: AppColors.blackColor),
                   ),
                 ),
                 body: _topics.isNotEmpty

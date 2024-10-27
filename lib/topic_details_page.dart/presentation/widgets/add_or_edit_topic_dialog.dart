@@ -137,16 +137,16 @@ class _AddOrEditTopicDialogState extends State<AddOrEditTopicDialog> {
               }
               return existingPackage;
             }).toList();
-            if (updatedSelectedPackages.every((pkg) => !pkg.isSelected)) {
-
-              // for (var pkg in updatedSelectedPackages) {
-              //   pkg.isSelected = false;
-              // }
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Please select at least one package.',style: AppTextStyles.playfairFont32Bold(context),)),
-              );
-              return;
-            }
+            // if (updatedSelectedPackages.every((pkg) => !pkg.isSelected)) {
+            //
+            //   for (var pkg in updatedSelectedPackages) {
+            //     pkg.isSelected = false;
+            //   }
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //     SnackBar(content: Text('Please select at least one package.',style: AppTextStyles.playfairFont32Bold(context),)),
+            //   );
+            //   return;
+            // }
 
 
             final newItem = TopicDetailsEntity(

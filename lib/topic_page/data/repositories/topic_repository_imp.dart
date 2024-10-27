@@ -11,8 +11,7 @@ class CheckListTopicRepositoryImp implements TopicRepository {
   CheckListTopicRepositoryImp({required this.firestore});
 
   @override
-  Future<void> addTopic(
-      String checklistName, TopicEntity topic) async {
+  Future<void> addTopic(String checklistName, TopicEntity topic) async {
     try {
       await firestore
           .collection(AppConstants.checklistCollection)
@@ -21,6 +20,7 @@ class CheckListTopicRepositoryImp implements TopicRepository {
           .add({
         'name': topic.name,
         'description': topic.description,
+        'timestamp': FieldValue.serverTimestamp(),
       });
       print('Topic added successfully');
     } catch (e) {
@@ -36,6 +36,7 @@ class CheckListTopicRepositoryImp implements TopicRepository {
           .collection(AppConstants.checklistCollection)
           .doc(checklistName)
           .collection(AppConstants.topicsCollection)
+          .orderBy('timestamp', descending: false)
           .get();
 
       return snapshot.docs.map((doc) {

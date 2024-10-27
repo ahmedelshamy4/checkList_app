@@ -1,12 +1,16 @@
 import 'package:checklist_app/core/custom_widgets/app_text_field_input.dart';
+import 'package:checklist_app/core/themes/app_colors.dart';
 import 'package:checklist_app/core/themes/app_text_styles.dart';
 import 'package:checklist_app/core/utils/custom_loader.dart';
+import 'package:checklist_app/core/utils/dimensions.dart';
 import 'package:checklist_app/home/domain/entities/check_list_item.dart';
 import 'package:checklist_app/home/presentation/manager/checklist_cubit.dart';
 import 'package:checklist_app/home/presentation/manager/checklist_state.dart';
 import 'package:checklist_app/home/presentation/widgets/build_reorderable_check_list_item.dart';
+import 'package:checklist_app/home/presentation/widgets/tips_carousel_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gap/gap.dart';
 
 class MainChecklistPage extends StatelessWidget {
   const MainChecklistPage({super.key});
@@ -19,10 +23,17 @@ class MainChecklistPage extends StatelessWidget {
         appBar: AppBar(
           title: Text(
             'Checklist App',
-            style: AppTextStyles.nunitoFont20Medium(context),
+            style: AppTextStyles.nunitoFont20Medium(context,color: AppColors.blackColor),
           ),
         ),
-        body: const _ChecklistBody(),
+        body: Column(
+          children: [
+            const Gap(PaddingDimensions.large),
+            Text("❇️ Planning and Research ❇️", style: AppTextStyles.playfairFont24Bold(context)),
+            TipsCarouselWidget(),
+            const Expanded(child: _ChecklistBody()),
+          ],
+        ),
       ),
     );
   }
@@ -51,9 +62,6 @@ class _ChecklistBodyState extends State<_ChecklistBody> {
     }
   }
 
-  void _onRemoveChecklistTopic(String id) {
-    context.read<ChecklistCubit>().removeChecklistItem(id);
-  }
 
   @override
   void dispose() {

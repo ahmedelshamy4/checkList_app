@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: AppColors.white,
           fontFamily: "Raleway",
           appBarTheme: AppBarTheme(
-            color: AppColors.white,
+            color: AppColors.primaryColor,
             elevation: 0,
             titleTextStyle: AppTextStyles.ralewayFont20SemiBold(context)
                 .copyWith(color: AppColors.white),

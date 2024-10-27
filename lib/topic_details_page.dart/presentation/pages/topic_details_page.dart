@@ -115,10 +115,6 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   int _calculateTotalSelectedPackages(List<TopicDetailsEntity> detailsList) {
     int totalSelected = 0;
@@ -149,11 +145,17 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
   bool _areAllPackagesSelected(TopicDetailsEntity item) {
     return item.selectedPackages.every((pkg) => pkg.isSelected);
   }
-  int _calculateTotalSelected() {
-    return _detailsList.fold(0, (total, item) {
-      return total + item.selectedPackages.where((pkg) => pkg.isSelected).length;
-    });
+
+  int _completedTopicsCountSelected() {
+    int completedTopicsCount = 0;
+    for (var topic in _detailsList) {
+      if (topic.selectedPackages.every((package) => package.isSelected)) {
+        completedTopicsCount++;
+      }
+    }
+    return completedTopicsCount;
   }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -187,14 +189,18 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
               appBar: AppBar(
                 title: Text(
                   widget.topic.name,
-                  style: AppTextStyles.nunitoFont20Medium(context),
+                  style: AppTextStyles.nunitoFont20Medium(context,
+                      color: AppColors.blackColor),
                 ),
               ),
               body: _detailsList.isNotEmpty
                   ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: PaddingDimensions.large,
+                              vertical: PaddingDimensions.large),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -221,16 +227,19 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                             ],
                           ),
                         ),
-
                         Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: PaddingDimensions.large,
+                            vertical: PaddingDimensions.large,
+                          ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.end,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Selected: ${_calculateTotalSelected()} / Total: ${_detailsList.length}',
-                                style: AppTextStyles
-                                    .nunitoFont16Bold(context),
+                                'TotalSelected: ${_completedTopicsCountSelected()} / Total: ${_detailsList.length}',
+                                style: AppTextStyles.nunitoFont16Bold(context),
                               ),
                             ],
                           ),
@@ -357,41 +366,31 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                                         ),
                                       ),
                                       if (item.packages.isNotEmpty)
-                                        ConstrainedBox(
-                                          constraints: BoxConstraints(
-                                            maxHeight: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                .1,
-                                          ),
-                                          child: ListView.builder(
-                                            itemCount: item.packages.length,
-                                            itemBuilder: (context, index) {
-                                              final packageName =
-                                                  item.selectedPackages[index];
-                                              return CustomCheckBoxTile(
-                                                paddingInsets: EdgeInsets.zero,
-                                                value: packageName.isSelected,
-                                                title: packageName.name,
-                                                onChanged: (value) {
-                                                  if (value == null) return;
-                                                  item.selectedPackages[index]
-                                                      .isSelected = value;
-                                                  context
-                                                      .read<TopicDetailsCubit>()
-                                                      .updateDetailsItemForTopic(
-                                                        topicId: widget
-                                                            .topic.topicId,
-                                                        checklistId:
-                                                            widget.checklistId,
-                                                        updatedDetails: item,
-                                                      );
-
-                                                  setState(() {});
-                                                },
-                                              );
-                                            },
-                                          ),
+                                        Wrap(
+                                          spacing: 8.0,
+                                          runSpacing: 4.0,
+                                          children: item.selectedPackages
+                                              .map((package) {
+                                            return CustomCheckBoxTile(
+                                              paddingInsets: EdgeInsets.zero,
+                                              value: package.isSelected,
+                                              title: package.name,
+                                              onChanged: (value) {
+                                                if (value == null) return;
+                                                package.isSelected = value;
+                                                context
+                                                    .read<TopicDetailsCubit>()
+                                                    .updateDetailsItemForTopic(
+                                                      topicId:
+                                                          widget.topic.topicId,
+                                                      checklistId:
+                                                          widget.checklistId,
+                                                      updatedDetails: item,
+                                                    );
+                                                setState(() {});
+                                              },
+                                            );
+                                          }).toList(),
                                         ),
                                     ],
                                   ),
@@ -400,6 +399,7 @@ class _TopicDetailsFormState extends State<_TopicDetailsForm> {
                             },
                           ),
                         ),
+                        const Gap(PaddingDimensions.xxxxLarge),
                       ],
                     )
                   : (state.getDetailsTopicsState.isLoading ||

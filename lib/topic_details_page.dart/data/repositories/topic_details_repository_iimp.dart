@@ -39,6 +39,7 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
                 )
                 .toList(),
         'progress': detailsItem.progress,
+        'timestamp': FieldValue.serverTimestamp(),
       });
       print("Topic details item added successfully");
     } catch (e) {
@@ -56,6 +57,7 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
           .collection(AppConstants.topicsCollection)
           .doc(topicId)
           .collection(AppConstants.topicDetailsCollection)
+          .orderBy('timestamp', descending: false)
           .get();
 
       return querySnapshot.docs.map((doc) {
@@ -66,19 +68,14 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
             doc['selectedPackages'] is List) {
           final rawSelectedPackages = doc['selectedPackages'] as List<dynamic>;
 
-          // Convert dynamic list to List<PackageModel>
           selectedPackages = rawSelectedPackages.map((dynamic pkg) {
             if (pkg is Map<String, dynamic>) {
-              // Safely access 'name' and 'isSelected'
               final name = pkg['name'] ?? '';
               final isSelected = pkg['isSelected'] ?? false;
               return PackageModel(name: name, isSelected: isSelected);
             } else {
-              // Handle unexpected data types
               print('Unexpected package format: $pkg');
-              return PackageModel(
-                  name: '',
-                  isSelected: false); // Fallback in case of unexpected format
+              return PackageModel(name: '', isSelected: false);
             }
           }).toList();
         } else {
@@ -152,5 +149,4 @@ class TopicDetailsRepositoryImp implements TopicDetailsRepository {
       print("Error updating topic details: $e");
     }
   }
-
 }
