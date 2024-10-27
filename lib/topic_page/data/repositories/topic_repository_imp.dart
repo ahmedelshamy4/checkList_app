@@ -11,11 +11,11 @@ class CheckListTopicRepositoryImp implements TopicRepository {
   CheckListTopicRepositoryImp({required this.firestore});
 
   @override
-  Future<void> addTopic(String checklistName, TopicEntity topic) async {
+  Future<void> addTopic(String checklistId, TopicEntity topic) async {
     try {
       await firestore
           .collection(AppConstants.checklistCollection)
-          .doc(checklistName)
+          .doc(checklistId)
           .collection(AppConstants.topicsCollection)
           .add({
         'name': topic.name,
@@ -30,11 +30,11 @@ class CheckListTopicRepositoryImp implements TopicRepository {
 
   @override
   Future<List<TopicEntity>> getTopicsByChecklistName(
-      String checklistName) async {
+      String checklistItemId) async {
     try {
       QuerySnapshot snapshot = await firestore
           .collection(AppConstants.checklistCollection)
-          .doc(checklistName)
+          .doc(checklistItemId)
           .collection(AppConstants.topicsCollection)
           .orderBy('timestamp', descending: false)
           .get();

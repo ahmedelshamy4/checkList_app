@@ -9,7 +9,7 @@ class GetCheckListTopicsUseCase {
 
   GetCheckListTopicsUseCase(this._repository);
 
-  Future<List<TopicEntity>> execute(String checklistName) async{
-    return await _repository.getTopicsByChecklistName(checklistName);
+  Future<List<TopicEntity>> execute(String  checklistItemId) async{
+    return await _repository.getTopicsByChecklistName(checklistItemId);
   }
 }

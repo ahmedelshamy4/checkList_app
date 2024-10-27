@@ -23,13 +23,15 @@ class MainChecklistPage extends StatelessWidget {
         appBar: AppBar(
           title: Text(
             'Checklist App',
-            style: AppTextStyles.nunitoFont20Medium(context,color: AppColors.blackColor),
+            style: AppTextStyles.nunitoFont20Medium(context,
+                color: AppColors.blackColor),
           ),
         ),
         body: Column(
           children: [
             const Gap(PaddingDimensions.large),
-            Text("❇️ Planning and Research ❇️", style: AppTextStyles.playfairFont24Bold(context)),
+            Text("❇️ Planning and Research ❇️",
+                style: AppTextStyles.playfairFont24Bold(context)),
             TipsCarouselWidget(),
             const Expanded(child: _ChecklistBody()),
           ],
@@ -53,15 +55,14 @@ class _ChecklistBodyState extends State<_ChecklistBody> {
     if (_addChecklistTopicController.text.isNotEmpty) {
       context.read<ChecklistCubit>().addChecklistNewItem(
             ChecklistItem(
-              id: DateTime.now().toString(),
+              id: "",
               name: _addChecklistTopicController.text,
-
+              order: 0,
             ),
           );
       _addChecklistTopicController.clear();
     }
   }
-
 
   @override
   void dispose() {
@@ -100,7 +101,8 @@ class _ChecklistBodyState extends State<_ChecklistBody> {
                       final checklist = state.getChecklistItemsState.data;
                       if (checklist != null) {
                         return checklist.isNotEmpty
-                            ? BuildReorderableCheckListItem(checklistItems: checklist)
+                            ? BuildReorderableCheckListItem(
+                                checklistItems: checklist)
                             : Center(
                                 child: Text(
                                   "No Checklist Items",

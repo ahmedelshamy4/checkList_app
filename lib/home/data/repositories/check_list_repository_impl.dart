@@ -1,10 +1,10 @@
 import 'package:checklist_app/core/helper/app_constants.dart';
-import 'package:checklist_app/home/data/models/api_check_list_item_model.dart';
 import 'package:checklist_app/home/domain/entities/check_list_item.dart';
 import 'package:checklist_app/home/domain/repositories/check_list_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 
+@Injectable(as: ChecklistRepository)
 @Injectable(as: ChecklistRepository)
 class ChecklistRepositoryImpl implements ChecklistRepository {
   final FirebaseFirestore firestore;
@@ -14,12 +14,15 @@ class ChecklistRepositoryImpl implements ChecklistRepository {
   @override
   Future<void> addCheckListItem(ChecklistItem item) async {
     try {
-      final apiItem =
-          ApiChecklistItemModel(id: item.id, name: item.name, order: 0);
-      await firestore
-          .collection(AppConstants.checklistCollection)
-          .add(apiItem.toFirestore());
-      print("Item successfully added");
+      final docRef = item.id.isEmpty
+          ? firestore.collection(AppConstants.checklistCollection).doc()
+          : firestore.collection(AppConstants.checklistCollection).doc(item.id);
+
+      final checklistItemWithId =
+          item.id.isEmpty ? item.copyWith(id: docRef.id) : item;
+
+      await docRef.set(checklistItemWithId.toFirestore());
+      print("Item successfully added with ID: ${checklistItemWithId.id}");
     } catch (e) {
       print("Error adding item: $e");
     }
@@ -30,13 +33,11 @@ class ChecklistRepositoryImpl implements ChecklistRepository {
     try {
       final snapshot = await firestore
           .collection(AppConstants.checklistCollection)
-          .orderBy('order',descending: false)
+          .orderBy('order', descending: false)
           .get();
+
       return snapshot.docs
-          .map((doc) => ApiChecklistItemModel.fromFirestore(
-                doc.data(),
-                doc.id,
-              ))
+          .map((doc) => ChecklistItem.fromFirestore(doc.data(), doc.id))
           .toList();
     } catch (e) {
       print("Error retrieving items: $e");
@@ -51,6 +52,7 @@ class ChecklistRepositoryImpl implements ChecklistRepository {
           .collection(AppConstants.checklistCollection)
           .doc(id)
           .delete();
+      print("Item with ID $id successfully deleted");
     } catch (e) {
       print("Error removing item: $e");
     }
@@ -59,16 +61,11 @@ class ChecklistRepositoryImpl implements ChecklistRepository {
   @override
   Future<void> updateCheckListItem(ChecklistItem item) async {
     try {
-      final apiItem = ApiChecklistItemModel(
-        id: item.id,
-        name: item.name,
-        order: item.order,
-      );
       await firestore
           .collection(AppConstants.checklistCollection)
           .doc(item.id)
-          .update(apiItem.toFirestore());
-      print("Item successfully updated");
+          .update(item.toFirestore());
+      print("Item with ID ${item.id} successfully updated");
     } catch (e) {
       print("Error updating item: $e");
     }
@@ -79,15 +76,11 @@ class ChecklistRepositoryImpl implements ChecklistRepository {
     try {
       for (int index = 0; index < checklist.length; index++) {
         final item = checklist[index];
-        final apiItem = ApiChecklistItemModel(
-          id: item.id,
-          name: item.name,
-          order: index,
-        );
+        final updatedItem = item.copyWith(order: index);
         await firestore
             .collection(AppConstants.checklistCollection)
-            .doc(item.id)
-            .update(apiItem.toFirestore());
+            .doc(updatedItem.id)
+            .update(updatedItem.toFirestore());
       }
       print("Checklist order successfully updated");
     } catch (e) {

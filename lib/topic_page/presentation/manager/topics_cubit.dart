@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:checklist_app/core/helper/injection.dart';
+import 'package:checklist_app/home/domain/entities/check_list_item.dart';
 import 'package:checklist_app/topic_page/domain/entities/topic_entity.dart';
 import 'package:checklist_app/topic_page/domain/use_cases/add_topic_use_case.dart';
 import 'package:checklist_app/topic_page/domain/use_cases/get_topics_use_case.dart';
@@ -25,38 +26,40 @@ class TopicsCubit extends Cubit<TopicsState> {
   late UpdateCheckListTopicUseCase _updateCheckListTopicUseCase;
 
   Future<void> addNewTopic(
-      String checklistName, TopicEntity topic) async {
+    String checklistItemId,
+    TopicEntity topic,
+  ) async {
     emit(state.reduce(addTopicState: const Async.loading()));
     try {
-      await _addTopicUseCase.execute(checklistName, topic);
+      await _addTopicUseCase.execute(checklistItemId, topic);
       emit(state.reduce(addTopicState: const Async.successWithoutData()));
-      await fetchTopicsByChecklistName(checklistName);
+      await fetchTopicsByChecklistName(checklistItemId);
     } catch (e) {
       emit(state.reduce(addTopicState: Async.failure(Failure(e.toString()))));
     }
   }
 
-  Future<void> fetchTopicsByChecklistName(String checklistName) async {
-    emit(state.reduce(getTopicsState: const Async.loading()));
+  Future<void> fetchTopicsByChecklistName(String checklistItemId) async {
     try {
-      final topics = await _getTopicsUseCase.execute(checklistName);
+      emit(state.reduce(getTopicsState: const Async.loading()));
+      final topics = await _getTopicsUseCase.execute(checklistItemId);
       emit(state.reduce(getTopicsState: Async.success(topics)));
-      print('Loaded ${topics.length} topics');
+      print('Loaded topics data: ${topics.length} topics');
     } catch (e) {
       emit(state.reduce(getTopicsState: Async.failure(Failure(e.toString()))));
     }
   }
 
   Future<void> deleteTopic({
-    required String checklistName,
+    required ChecklistItem checklistItem,
     required TopicEntity topic,
   }) async {
     emit(state.reduce(removeTopicState: const Async.loading()));
     try {
-      await _removeTodoUseCase.execute(checklistName, topic);
+      await _removeTodoUseCase.execute(checklistItem.id, topic);
       emit(state.reduce(removeTopicState: const Async.successWithoutData()));
       print('Removed topic successfully');
-      await fetchTopicsByChecklistName(checklistName);
+      await fetchTopicsByChecklistName(checklistItem.id);
     } catch (e) {
       emit(
           state.reduce(removeTopicState: Async.failure(Failure(e.toString()))));
@@ -65,13 +68,14 @@ class TopicsCubit extends Cubit<TopicsState> {
 
   Future<void> updateTopic({
     required String checklistName,
+    required String checklistItemId,
     required TopicEntity topic,
   }) async {
     emit(state.reduce(updateTopicState: const Async.loading()));
     try {
       await _updateCheckListTopicUseCase.execute(checklistName, topic);
       emit(state.reduce(updateTopicState: const Async.successWithoutData()));
-      await fetchTopicsByChecklistName(checklistName);
+      await fetchTopicsByChecklistName(checklistItemId);
     } catch (e) {
       emit(
           state.reduce(updateTopicState: Async.failure(Failure(e.toString()))));

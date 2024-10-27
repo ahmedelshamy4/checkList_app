@@ -20,7 +20,7 @@ class TopicPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          TopicsCubit()..fetchTopicsByChecklistName(checklistItem.name),
+          TopicsCubit()..fetchTopicsByChecklistName(checklistItem.id),
       child: TopicDetailsPageBody(
         checklistItem: checklistItem,
       ),
@@ -75,7 +75,7 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody> {
   void _deleteTopic(TopicEntity topic) async {
     await context
         .read<TopicsCubit>()
-        .deleteTopic(checklistName: widget.checklistItem.name, topic: topic);
+        .deleteTopic(checklistItem: widget.checklistItem, topic: topic);
     _topics.remove(topic);
     setState(() {});
   }
@@ -86,7 +86,10 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody> {
       name: name,
       description: description,
     );
-    context.read<TopicsCubit>().addNewTopic(widget.checklistItem.name, topic);
+    context.read<TopicsCubit>().addNewTopic(
+          widget.checklistItem.id,
+          topic,
+        );
   }
 
   void showUpdateTopicDialog(
@@ -100,6 +103,7 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody> {
           onUpdateTopic: (checklistName, topic) {
             context.read<TopicsCubit>().updateTopic(
                   checklistName: checklistName,
+                  checklistItemId: widget.checklistItem.id,
                   topic: topic,
                 );
           },
@@ -185,7 +189,8 @@ class _TopicDetailsPageBodyState extends State<TopicDetailsPageBody> {
                 appBar: AppBar(
                   title: Text(
                     widget.checklistItem.name,
-                    style: AppTextStyles.nunitoFont20Medium(context,color: AppColors.blackColor),
+                    style: AppTextStyles.nunitoFont20Medium(context,
+                        color: AppColors.blackColor),
                   ),
                 ),
                 body: _topics.isNotEmpty

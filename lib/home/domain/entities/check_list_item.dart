@@ -1,21 +1,32 @@
 import 'package:equatable/equatable.dart';
 
-class ChecklistItem extends Equatable {
+class ChecklistItem extends Equatable{
   final String id;
   final String name;
-  final int? order;
+  final int order;
 
-  const ChecklistItem({
-    required this.id,
-    required this.name,
-     this.order,
-  });
+  ChecklistItem({required this.id, required this.name, required this.order});
 
-  ChecklistItem copyWith({
-    String? id,
-    String? name,
-    int? order,
-  }) {
+  // Convert ChecklistItem to Firestore-friendly map
+  Map<String, dynamic> toFirestore() {
+    return {
+      'id': id,
+      'name': name,
+      'order': order,
+    };
+  }
+
+  // Create ChecklistItem from Firestore data
+  factory ChecklistItem.fromFirestore(Map<String, dynamic> data, String id) {
+    return ChecklistItem(
+      id: id,
+      name: data['name'] ?? '',
+      order: data['order'] ?? 0,
+    );
+  }
+
+  // Add copyWith for id assignment in addCheckListItem
+  ChecklistItem copyWith({String? id, String? name, int? order}) {
     return ChecklistItem(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -25,8 +36,8 @@ class ChecklistItem extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        order,
-      ];
+    id,
+    name,
+    order,
+  ];
 }
